@@ -32,6 +32,7 @@ public class StateWindow  extends JFrame {
         });
 
         setVisible(true);
+        JScrollPane scroll = new JScrollPane(log);
 
         mainPanel.setBackground(new Color(234, 255, 226)); //#F6FFF8
         mainPanel.setLayout(null);
@@ -39,7 +40,7 @@ public class StateWindow  extends JFrame {
 
         mainPanel.add(prevGraphPanel);
         mainPanel.add(nextGraphPanel);
-        mainPanel.add(log);
+        scroll.add(log);
         mainPanel.add(interruptAlgorithm);
         mainPanel.add(prevStep);
         mainPanel.add(nextStep);
@@ -48,7 +49,7 @@ public class StateWindow  extends JFrame {
 
         prevGraphPanel.setBounds    (30, 30, 560, 540);
         nextGraphPanel.setBounds    (620, 30, 560, 540);
-        log.setBounds               (30, 585, 1150, 165);
+        scroll.setBounds            (30, 585, 1150, 165);
         interruptAlgorithm.setBounds(30, 780,265, 70);
         prevStep.setBounds          (325, 780, 265, 70);
         nextStep.setBounds          (620, 780, 265, 70);
