@@ -1,10 +1,12 @@
 package gui;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class GraphText_Input extends JFrame {
     private final MainWindow parent;
+    private String textString;
     private JPanel mainPanel            = new JPanel();
     private JTextArea text              = new JTextArea();
     private JButton applyInputGraph     = new JButton("Apply");
@@ -13,7 +15,17 @@ public class GraphText_Input extends JFrame {
     public GraphText_Input(MainWindow mainWindow) {
         super("Graph Input");
         parent = mainWindow;
+        parent.setEnabled(false);
         setBounds(250, 250, 800, 600);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                parent.setEnabled(true);
+                dispose();
+            }
+        });
         setVisible(true);
 
         Color mainColor = new Color(234, 255, 226); //#FFFADD
@@ -33,8 +45,19 @@ public class GraphText_Input extends JFrame {
         Color c = new Color(255, 250, 221); //#FFFADD
         text.setBackground(c);
 
+        cancelInputGraph.addActionListener(new eventHandler());
+
         applyInputGraph.setEnabled(false);
 
     }
 
+    class eventHandler implements ActionListener{
+        @Override
+        public void actionPerformed (ActionEvent actionEvent){
+            if(actionEvent.getSource() == cancelInputGraph) {
+                parent.setEnabled(true);
+                dispose();
+            }
+        }
+    }
 }

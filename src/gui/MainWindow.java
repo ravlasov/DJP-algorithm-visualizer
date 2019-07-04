@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class MainWindow extends JFrame {
@@ -43,14 +44,49 @@ public class MainWindow extends JFrame {
         inputGraphPanel.setBackground(c);
         outputGraphPanel.setBackground(c);
 
+        runAlgorithm.addActionListener(new eventHandler());
+        getGraphFromGUI.addActionListener(new eventHandler());
+        getGraphFromKeyboard.addActionListener(new eventHandler());
+        getGraphFromFile.addActionListener(new eventHandler());
+        saveGraphToFile.addActionListener(new eventHandler());
     }
 
     public static void main(String[] args)
     {
         MainWindow window = new MainWindow();
-        StateWindow s = new StateWindow(window);
-        GraphGUI_Input g = new GraphGUI_Input(window);
-        GraphText_Input t = new GraphText_Input(window);
+    }
+
+    class eventHandler implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            if(actionEvent.getSource() == runAlgorithm) {
+                StateWindow state = new StateWindow(MainWindow.this);
+            }
+            if(actionEvent.getSource() == getGraphFromGUI){
+                GraphGUI_Input graphGUI_input = new GraphGUI_Input(MainWindow.this);
+            }
+            if(actionEvent.getSource() == getGraphFromFile)
+            {
+                FileDialog fd = new FileDialog(MainWindow.this, "Choose a file", FileDialog.LOAD);
+                fd.setDirectory(System.getProperty("user.home"));
+                fd.setFilenameFilter((file, s) -> s.endsWith(".txt"));
+                fd.setVisible(true);
+                String filename = fd.getFile();
+            }
+            if(actionEvent.getSource() == getGraphFromKeyboard)
+            {
+                String str = null;
+                GraphText_Input GUIGraph = new GraphText_Input(MainWindow.this, str);
+            }
+            if(actionEvent.getSource() == saveGraphToFile)
+            {
+                FileDialog fd = new FileDialog(MainWindow.this, "Choose a file", FileDialog.LOAD);
+                fd.setDirectory(System.getProperty("user.home"));
+                fd.setFilenameFilter((file, s) -> s.endsWith(".txt"));
+                fd.setVisible(true);
+                String filename = fd.getFile();
+            }
+        }
     }
 
 }

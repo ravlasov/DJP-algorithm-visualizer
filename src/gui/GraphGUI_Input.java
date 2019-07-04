@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.*;
 import javax.swing.*;
+import java.awt.event.*;
 
 public class GraphGUI_Input extends JFrame {
     private final MainWindow parent;
@@ -16,7 +17,17 @@ public class GraphGUI_Input extends JFrame {
     public GraphGUI_Input(MainWindow mainWindow){
         super("Graph Input");
         parent = mainWindow;
+        parent.setVisible(false);
         setBounds(150, 150, 1210, 910);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                parent.setVisible(true);
+                dispose();
+            }
+        });
         setVisible(true);
 
         Color mainColor = new Color(234, 255, 226); //#FFFADD
@@ -49,7 +60,19 @@ public class GraphGUI_Input extends JFrame {
         modeVertex.setBackground(mainColor);
         modeEdge.setBackground(mainColor);
 
+        cancelInputGraph.addActionListener(new eventHandler());
+
         applyInputGraph.setEnabled(false);
 
+    }
+
+    class eventHandler implements ActionListener{
+        @Override
+        public void actionPerformed (ActionEvent actionEvent){
+            if(actionEvent.getSource() == cancelInputGraph) {
+                parent.setVisible(true);
+                dispose();
+            }
+        }
     }
 }
