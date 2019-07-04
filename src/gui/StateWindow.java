@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class StateWindow  extends JFrame {
@@ -18,7 +19,17 @@ public class StateWindow  extends JFrame {
     public StateWindow(MainWindow  mainWindow) {
         super("State");
         parent = mainWindow;
+        parent.setVisible(false);
         setBounds(150, 150, 1210, 900);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                parent.setVisible(true);
+                dispose();
+            }
+        });
 
         setVisible(true);
 
@@ -49,11 +60,25 @@ public class StateWindow  extends JFrame {
         nextGraphPanel.setBackground(c);
         log.setBackground(c);
 
+        interruptAlgorithm.addActionListener(new eventHandler());
+
         log.setEditable(false);
 
         nextStep.setEnabled(false);
         prevStep.setEnabled(false);
         startPauseTimer.setEnabled(false);
 
+        log.setText("Test text");
+        timeCounter.setText("appears soon");
+    }
+
+    class eventHandler implements ActionListener{
+        @Override
+        public void actionPerformed (ActionEvent actionEvent){
+            if(actionEvent.getSource() == interruptAlgorithm) {
+                parent.setVisible(true);
+                dispose();
+            }
+        }
     }
 }
