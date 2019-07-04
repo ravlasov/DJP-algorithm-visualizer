@@ -15,7 +15,7 @@ public class MainWindow extends JFrame {
     private JPanel outputGraphPanel         = new JPanel();
 
     public MainWindow() {
-        super("DJP algorithm vizualizer");
+        super("DJP Algorithm Visualizer");
         setBounds(150, 150, 1210, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
