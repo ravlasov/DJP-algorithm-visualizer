@@ -12,7 +12,7 @@ public class GraphText_Input extends JFrame {
     private JButton applyInputGraph     = new JButton("Apply");
     private JButton cancelInputGraph    = new JButton("Cancel");
 
-    public GraphText_Input(MainWindow mainWindow) {
+    public GraphText_Input(MainWindow mainWindow, String str) {
         super("Graph Input");
         parent = mainWindow;
         parent.setEnabled(false);
