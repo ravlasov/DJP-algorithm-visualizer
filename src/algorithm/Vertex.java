@@ -22,4 +22,14 @@ public class Vertex {
     {
         return name;
     }
+
+    public boolean equals(Object o)
+    {
+        if (o == this)
+            return true;
+        if (!(o instanceof Vertex))
+            return false;
+        Vertex v = (Vertex)o;
+        return this.name == v.name;
+    }
 }
