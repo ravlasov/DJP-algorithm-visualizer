@@ -1,6 +1,7 @@
 package algorithm;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 public class Edge {
     private Vertex v1;
@@ -39,10 +40,10 @@ public class Edge {
         return color;
     }
 
-    public static Edge getCheapestEdge(Edge[] edges)
+    public static Edge getCheapestEdge(ArrayList<Edge> edges)
     {
-        int min = edges[0].getCost();
-        Edge cheapest = edges[0];
+        Edge cheapest = edges.get(0);
+        int min = cheapest.getCost();
         for (Edge e : edges)
         {
             if (e.getCost() < min)
@@ -52,5 +53,21 @@ public class Edge {
             }
         }
         return cheapest;
+    }
+
+
+    public String toString()
+    {
+        return v1.getName() + " " + v2.getName() + " " + cost + "\n";
+    }
+
+    public static String getListAsString(ArrayList<Edge> edges)
+    {
+        StringBuilder str = new StringBuilder();
+        for (Edge e : edges)
+        {
+            str.append(e.toString());
+        }
+        return str.toString();
     }
 }
