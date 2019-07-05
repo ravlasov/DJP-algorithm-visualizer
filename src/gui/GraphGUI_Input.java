@@ -1,8 +1,8 @@
 package gui;
 
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class GraphGUI_Input extends JFrame {
     private final MainWindow parent;
@@ -14,20 +14,21 @@ public class GraphGUI_Input extends JFrame {
     private JRadioButton modeVertex     = new JRadioButton("Vertex editing");
     private JRadioButton modeEdge       = new JRadioButton("Edge editing");
 
-    public GraphGUI_Input(MainWindow mainWindow){
+    public GraphGUI_Input(MainWindow mainWindow
+    ){
         super("Graph Input");
         parent = mainWindow;
         parent.setVisible(false);
         setBounds(150, 150, 1210, 910);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                parent.setVisible(true);
-                dispose();
-            }
-        });
+                        {
+                            @Override
+                            public void windowClosing(WindowEvent e) {
+                                parent.setVisible(true);
+                                dispose();
+                            }
+                        });
         setVisible(true);
 
         Color mainColor = new Color(234, 255, 226); //#FFFADD
@@ -47,8 +48,16 @@ public class GraphGUI_Input extends JFrame {
         inputMode.setBounds         (30, 790, 120, 70);
         cancelInputGraph.setBounds  (480, 810, 300, 50);
         applyInputGraph.setBounds   (810, 790, 360, 70);
-        modeVertex.setBounds        (140, 790, 130, 45);
-        modeEdge.setBounds          (140, 820, 130, 45);
+        modeVertex.setBounds        (140, 790, 200, 45);
+        modeEdge.setBounds          (140, 820, 200, 45);
+
+        Font f = new Font("Monospaced", Font.PLAIN, 18);
+        inputMode.setFont(f);
+        cancelInputGraph.setFont(f);
+        applyInputGraph.setFont(f);
+        modeEdge.setFont(f);
+        modeVertex.setFont(f);
+
 
         ButtonGroup group = new ButtonGroup();
         group.add(modeVertex);
@@ -75,4 +84,5 @@ public class GraphGUI_Input extends JFrame {
             }
         }
     }
+
 }

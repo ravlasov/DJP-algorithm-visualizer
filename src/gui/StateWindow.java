@@ -16,6 +16,10 @@ public class StateWindow  extends JFrame {
     private JPanel nextGraphPanel       = new JPanel();
     private JTextArea log               = new JTextArea();
 
+    private JLabel labelBeforeState          = new JLabel("Before State Graph");
+    private JLabel labelCurrentState          = new JLabel("Current State Graph");
+
+
     public StateWindow(MainWindow  mainWindow) {
         super("State");
         parent = mainWindow;
@@ -23,24 +27,24 @@ public class StateWindow  extends JFrame {
         setBounds(150, 150, 1210, 900);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                parent.setVisible(true);
-                dispose();
-            }
-        });
-
+                        {
+                            @Override
+                            public void windowClosing(WindowEvent e) {
+                                parent.setVisible(true);
+                                dispose();
+                            }
+                        });
         setVisible(true);
-        JScrollPane scroll = new JScrollPane(log);
 
         mainPanel.setBackground(new Color(234, 255, 226)); //#F6FFF8
         mainPanel.setLayout(null);
         add(mainPanel);
 
+        JScrollPane scroll = new JScrollPane(log);
+
         mainPanel.add(prevGraphPanel);
         mainPanel.add(nextGraphPanel);
-        scroll.add(log);
+        mainPanel.add(scroll);
         mainPanel.add(interruptAlgorithm);
         mainPanel.add(prevStep);
         mainPanel.add(nextStep);
@@ -56,6 +60,24 @@ public class StateWindow  extends JFrame {
         startPauseTimer.setBounds   (910, 780, 120, 70);
         timeCounter.setBounds       (1040, 780, 140, 70);
 
+        prevGraphPanel.add(labelBeforeState);
+        labelBeforeState.setBounds(0, 0, 560, 20);
+
+        nextGraphPanel.add(labelCurrentState);
+        labelCurrentState.setBounds(0,0,560,20);
+
+        Font f = new Font("Monospaced", Font.PLAIN, 18);
+        interruptAlgorithm.setFont(f);
+        prevStep.setFont(f);
+        nextStep.setFont(f);
+        startPauseTimer.setFont(f);
+        timeCounter.setFont(f);
+        labelCurrentState.setFont(f);
+        labelBeforeState.setFont(f);
+        log.setFont(f);
+
+
+
         Color c = new Color(255, 250, 221); //#FFFADD
         prevGraphPanel.setBackground(c);
         nextGraphPanel.setBackground(c);
@@ -69,8 +91,12 @@ public class StateWindow  extends JFrame {
         prevStep.setEnabled(false);
         startPauseTimer.setEnabled(false);
 
-        log.setText("Test text");
+
+        log.setText("Test text\nA\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM");
         timeCounter.setText("appears soon");
+
+
+
     }
 
     class eventHandler implements ActionListener{

@@ -1,5 +1,8 @@
 package gui;
 
+import algorithm.DJPAlgorithm;
+import algorithm.Graph;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -13,6 +16,11 @@ public class MainWindow extends JFrame {
     private JButton runAlgorithm            = new JButton("Start DJP algorithm");
     private JPanel inputGraphPanel          = new JPanel();
     private JPanel outputGraphPanel         = new JPanel();
+
+    private JLabel lableInputGraph          = new JLabel("Input Graph");
+    private JLabel lableOutputGraph          = new JLabel("Output Graph");
+
+
 
     public MainWindow() {
         super("DJP Algorithm Visualizer");
@@ -40,6 +48,26 @@ public class MainWindow extends JFrame {
         inputGraphPanel.setBounds       (30, 210, 555, 630);
         outputGraphPanel.setBounds      (615 ,210 ,555, 630);
 
+        inputGraphPanel.add(lableInputGraph);
+        lableInputGraph.setBounds(0, 0, 555, 20);
+
+        outputGraphPanel.add(lableOutputGraph);
+        lableOutputGraph.setBounds(0,0, 555, 20);
+
+        Font f = new Font("Monospaced", Font.PLAIN, 18);
+        getGraphFromFile.setFont(f);
+        getGraphFromKeyboard.setFont(f);
+        getGraphFromGUI.setFont(f);
+        saveGraphToFile.setFont(f);
+        runAlgorithm.setFont(f);
+        lableInputGraph.setFont(f);
+        lableOutputGraph.setFont(f);
+
+
+
+
+
+
         Color c = new Color(255, 250, 221); //#FFFADD
         inputGraphPanel.setBackground(c);
         outputGraphPanel.setBackground(c);
@@ -51,10 +79,27 @@ public class MainWindow extends JFrame {
         saveGraphToFile.addActionListener(new eventHandler());
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         MainWindow window = new MainWindow();
+        Graph g = new Graph();
+        g.addEdge(1, 2, 10);
+        g.addEdge(2, 3, 20);
+        g.addEdge(3, 4, 50);
+        g.addEdge(1, 3, 30);
+        g.addEdge(1, 4, 15);
+        g.print();
+        DJPAlgorithm a = new DJPAlgorithm();
+        a.init(g);
+        while (a.isFinished() == false)
+        {
+            System.out.println(a.getComment());
+            a.makeStep();
+        }
+
+        g.printA();
+
     }
+
 
     class eventHandler implements ActionListener {
         @Override
