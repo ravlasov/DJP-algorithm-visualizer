@@ -19,13 +19,13 @@ public class GraphText_Input extends JFrame {
         setBounds(250, 250, 800, 600);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                parent.setEnabled(true);
-                dispose();
-            }
-        });
+                        {
+                            @Override
+                            public void windowClosing(WindowEvent e) {
+                                parent.setEnabled(true);
+                                dispose();
+                            }
+                        });
         setVisible(true);
 
         Color mainColor = new Color(234, 255, 226); //#FFFADD
@@ -34,16 +34,24 @@ public class GraphText_Input extends JFrame {
         mainPanel.setLayout(null);
         add(mainPanel);
 
-        mainPanel.add(text);
+        JScrollPane scroll = new JScrollPane(text);
+
+        mainPanel.add(scroll);
         mainPanel.add(applyInputGraph);
         mainPanel.add(cancelInputGraph);
 
-        text.setBounds   (30,30, 730, 430);
+        scroll.setBounds   (30,30, 730, 430);
         cancelInputGraph.setBounds  (30, 480, 360, 70);
         applyInputGraph.setBounds   (400, 480, 360, 70);
 
+        Font f = new Font("Monospaced", Font.PLAIN, 18);
+        applyInputGraph.setFont(f);
+        cancelInputGraph.setFont(f);
+        text.setFont(f);
+
         Color c = new Color(255, 250, 221); //#FFFADD
         text.setBackground(c);
+
 
         cancelInputGraph.addActionListener(new eventHandler());
 
