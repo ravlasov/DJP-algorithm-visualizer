@@ -4,7 +4,7 @@ import java.awt.Color;
 
 public class Vertex {
     private final int name;
-    private Color color;
+    private Color color = Color.GRAY;
 
     public Vertex(int value) {
         this.name = value;

@@ -7,7 +7,7 @@ public class Edge {
     private Vertex v1;
     private Vertex v2;
     private int cost;
-    private Color color;
+    private Color color = Color.GRAY;
 
     public Edge(int name1, int name2, int cost) {
         v1 = new Vertex(name1);

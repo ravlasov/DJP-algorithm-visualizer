@@ -1,5 +1,6 @@
 package algorithm;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -18,6 +19,7 @@ public class DJPAlgorithm implements AlgorithmControl {
         Edge e = graph.getFirstEdge();
         Vertex[] v = e.getAdjasent();
         visited.add(v[0]);
+        v[0].setColor(Color.GREEN);
         phase = 0;
         finished = false;
 
@@ -35,21 +37,36 @@ public class DJPAlgorithm implements AlgorithmControl {
         if (phase == 0)
         {
             incedentEdgesList = getAllIncedentEdges();
+            for (Edge e : incedentEdgesList)
+            {
+                e.setColor(Color.BLUE);
+            }
             phase = 1;
             comment = "Current adjasent edges are:\n" + Edge.getListAsString(incedentEdgesList);
-            if (incedentEdgesList.size() == 0)
+            if (incedentEdgesList.size() == 0) {
                 finished = true;
+            }
         }
         else if (phase == 1)
         {
             Edge cheapest = Edge.getCheapestEdge(incedentEdgesList);
             comment = "The cheapest one is: " + cheapest.toString();
+            cheapest.setColor(Color.GREEN);
             gr.addToAnswer(cheapest);
             Vertex[] v = cheapest.getAdjasent();
-            if (isVisited(v[0]) == false)
+            for (Edge e : incedentEdgesList)
+            {
+                if (e.getColor() == Color.BLUE)
+                    e.setColor(Color.GRAY);
+            }
+            if (!isVisited(v[0])) {
                 visited.add(v[0]);
-            else if (isVisited(v[1]) == false)
+                v[0].setColor(Color.GREEN);
+            }
+            if (!isVisited(v[1])) {
                 visited.add(v[1]);
+                v[1].setColor(Color.GREEN);
+            }
             incedentEdgesList.clear();
             phase = 0;
         }
@@ -99,8 +116,11 @@ public class DJPAlgorithm implements AlgorithmControl {
         {
             Edge e = it.next();
             Vertex[] c = e.getAdjasent();
-            if (isVisited(c[0]) && isVisited(c[1]))
+            if (isVisited(c[0]) && isVisited(c[1])) {
+                if (e.getColor() == Color.GRAY)
+                    e.setColor(Color.WHITE);
                 it.remove();
+            }
         }
 
         return incedent;
