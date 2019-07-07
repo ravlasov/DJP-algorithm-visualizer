@@ -3,10 +3,10 @@ package algorithm;
 import java.awt.Color;
 
 public class Vertex {
-    private final int name;
+    private final String name;
     private Color color = Color.GRAY;
 
-    public Vertex(int value) {
+    public Vertex(String value) {
         this.name = value;
     }
 
@@ -18,7 +18,7 @@ public class Vertex {
         return color;
     }
 
-    public int getName()
+    public String getName()
     {
         return name;
     }
@@ -30,6 +30,6 @@ public class Vertex {
         if (!(o instanceof Vertex))
             return false;
         Vertex v = (Vertex)o;
-        return this.name == v.name;
+        return this.name.equals(v.name);
     }
 }

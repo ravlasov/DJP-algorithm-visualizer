@@ -11,6 +11,7 @@ public class DJPAlgorithm implements AlgorithmControl {
     private ArrayList<Edge> incedentEdgesList;
     private boolean finished;
     private String comment;
+    private String bothVisited;
 
     @Override
     public void init(Graph graph) {
@@ -42,8 +43,12 @@ public class DJPAlgorithm implements AlgorithmControl {
                 e.setColor(Color.BLUE);
             }
             phase = 1;
-            comment = "Current adjasent edges are:\n" + Edge.getListAsString(incedentEdgesList);
+            comment = "Current adjasent edges are:\n" + Edge.getListAsString(incedentEdgesList) +
+                    (bothVisited.length() == 0 ? "" :
+                      "These edges are no longer considered:\n" + bothVisited);
+            bothVisited = null;
             if (incedentEdgesList.size() == 0) {
+                comment = "Algorithm is finished. Answer is:\n" + gr.answerToString();
                 finished = true;
             }
         }
@@ -106,6 +111,7 @@ public class DJPAlgorithm implements AlgorithmControl {
 
     private ArrayList<Edge> getAllIncedentEdges()
     {
+        StringBuilder str = new StringBuilder();
         ArrayList<Edge> incedent = new ArrayList<>();
         for (Vertex v : visited)
         {
@@ -119,9 +125,12 @@ public class DJPAlgorithm implements AlgorithmControl {
             if (isVisited(c[0]) && isVisited(c[1])) {
                 if (e.getColor() == Color.GRAY)
                     e.setColor(Color.WHITE);
+                if (!str.toString().contains(e.toString()))
+                    str.append("\t" + e.toString());
                 it.remove();
             }
         }
+        bothVisited = str.toString();
 
         return incedent;
     }
