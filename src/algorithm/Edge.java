@@ -9,7 +9,7 @@ public class Edge {
     private int cost;
     private Color color = Color.GRAY;
 
-    public Edge(int name1, int name2, int cost) {
+    public Edge(String name1, String name2, int cost) {
         v1 = new Vertex(name1);
         v2 = new Vertex(name2);
         this.cost = cost;
@@ -17,7 +17,7 @@ public class Edge {
 
     public boolean isAdjacent(Vertex v)
     {
-        if (v.getName() == v1.getName() || v.getName() == v2.getName())
+        if (v.equals(v1) || v.equals(v2))
             return true;
         return false;
     }
@@ -58,7 +58,7 @@ public class Edge {
 
     public String toString()
     {
-        return v1.getName() + " " + v2.getName() + " " + cost + "\n";
+        return v1.getName() + " " + v2.getName() + " " + cost + System.lineSeparator();
     }
 
     public static String getListAsString(ArrayList<Edge> edges)
@@ -66,7 +66,7 @@ public class Edge {
         StringBuilder str = new StringBuilder();
         for (Edge e : edges)
         {
-            str.append(e.toString());
+            str.append("\t" + e.toString());
         }
         return str.toString();
     }

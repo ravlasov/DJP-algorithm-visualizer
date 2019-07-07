@@ -27,7 +27,7 @@ public class Graph {
         edgeList.add(e);
     }
 
-    public void addEdge(int name1, int name2, int cost)
+    public void addEdge(String name1, String name2, int cost)
     {
         edgeList.add(new Edge(name1, name2, cost));
     }
@@ -40,7 +40,7 @@ public class Graph {
             Vertex[] x = ed.getAdjasent();
             if (x[0].equals(v[0]) || x[0].equals(v[1]))
                 x[0].setColor(Color.GREEN);
-            if (x[1].equals(v[0]) || x[0].equals(v[1]))
+            if (x[1].equals(v[0]) || x[1].equals(v[1]))
                 x[1].setColor(Color.GREEN);
         }
         answerEdgesList.add(e);
@@ -113,7 +113,9 @@ public class Graph {
                 }
 
                 Vertex[] adjV = e.getAdjasent();
-                graph.insertEdge(grParent, null, costStr, vertexObj[adjV[0].getName()-1], vertexObj[adjV[1].getName()-1],
+
+                graph.insertEdge(grParent, null, costStr, vertexObj[vertex.indexOf(adjV[0])],
+                                                            vertexObj[vertex.indexOf(adjV[1])],
                                     styleEdge);
             }
 
@@ -126,7 +128,6 @@ public class Graph {
         layout.execute(grParent);
 
         mxGraphComponent graphComponent = new mxGraphComponent(graph);
-        graphComponent.setBounds(0, 30, 555, 600);
         graphComponent.setEnabled(false);
         graphComponent.setVisible(true);
         return graphComponent;
@@ -138,7 +139,6 @@ public class Graph {
         for (Edge e : edgeList)
         {
             Vertex[] v = e.getAdjasent();
-            System.out.println(v[0].getName() + " " + v[1].getName() + " " + e.getCost());
         }
     }
     public void printA()
@@ -146,7 +146,6 @@ public class Graph {
         for (Edge e : answerEdgesList)
         {
             Vertex[] v = e.getAdjasent();
-            System.out.println(v[0].getName() + " " + v[1].getName() + " " + e.getCost());
         }
     }
 
@@ -157,9 +156,33 @@ public class Graph {
         for (String s : substr)
         {
             String[] elements = s.split(" ");
-            gr.addEdge(Integer.parseInt(elements[0]), Integer.parseInt(elements[1]), Integer.parseInt(elements[2]));
+            gr.addEdge(elements[0], elements[1], Integer.parseInt(elements[2]));
         }
         return gr;
+    }
+
+    public String toString()
+    {
+        StringBuilder str = new StringBuilder();
+        for (Edge e : edgeList)
+        {
+            str.append(e.toString());
+        }
+        return str.toString();
+    }
+
+    public String answerToString()
+    {
+        StringBuilder str = new StringBuilder();
+        for (Edge e : answerEdgesList)
+        {
+            str.append(e.toString());
+        }
+        return str.toString();
+    }
+
+    public static boolean isValid(String str) {
+        return false; // to be implemented
     }
 
 }
