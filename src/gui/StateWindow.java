@@ -1,5 +1,10 @@
 package gui;
 
+import algorithm.DJPAlgorithm;
+import algorithm.Graph;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.view.mxGraph;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -16,12 +21,15 @@ public class StateWindow  extends JFrame {
     private JPanel nextGraphPanel       = new JPanel();
     private JTextArea log               = new JTextArea();
 
-    private JLabel labelBeforeState          = new JLabel("Before State Graph");
-    private JLabel labelCurrentState          = new JLabel("Current State Graph");
+    private JLabel labelBeforeState     = new JLabel("Before State Graph", SwingConstants.CENTER);
+    private JLabel labelCurrentState    = new JLabel("Current State Graph", SwingConstants.CENTER);
+    private DJPAlgorithm algorithm;
+    private ActionListener recipient;
 
-
-    public StateWindow(MainWindow  mainWindow) {
+    public StateWindow(MainWindow  mainWindow, ActionListener recipient, DJPAlgorithm algorithm) {
         super("State");
+        this.algorithm = algorithm;
+        this.recipient = recipient;
         parent = mainWindow;
         parent.setVisible(false);
         setBounds(150, 150, 1210, 900);
@@ -36,7 +44,8 @@ public class StateWindow  extends JFrame {
                         });
         setVisible(true);
 
-        mainPanel.setBackground(new Color(234, 255, 226)); //#F6FFF8
+        Color c = new Color(234, 255, 226); //#F6FFF8
+        mainPanel.setBackground(c);
         mainPanel.setLayout(null);
         add(mainPanel);
 
@@ -62,9 +71,15 @@ public class StateWindow  extends JFrame {
 
         prevGraphPanel.add(labelBeforeState);
         labelBeforeState.setBounds(0, 0, 560, 20);
+        prevGraphPanel.setLayout(null);
 
         nextGraphPanel.add(labelCurrentState);
         labelCurrentState.setBounds(0,0,560,20);
+        nextGraphPanel.setLayout(null);
+        mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
+        grComp.setBounds(0, 30, 560, 510);
+        nextGraphPanel.add(grComp);
+        nextGraphPanel.updateUI();
 
         Font f = new Font("Monospaced", Font.PLAIN, 18);
         interruptAlgorithm.setFont(f);
@@ -76,27 +91,20 @@ public class StateWindow  extends JFrame {
         labelBeforeState.setFont(f);
         log.setFont(f);
 
-
-
-        Color c = new Color(255, 250, 221); //#FFFADD
         prevGraphPanel.setBackground(c);
         nextGraphPanel.setBackground(c);
-        log.setBackground(c);
+        log.setBackground(new Color(255, 250, 221)); //#FFFADD
 
         interruptAlgorithm.addActionListener(new eventHandler());
+        nextStep.addActionListener(new eventHandler());
 
         log.setEditable(false);
 
-        nextStep.setEnabled(false);
         prevStep.setEnabled(false);
         startPauseTimer.setEnabled(false);
 
-
-        log.setText("Test text\nA\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM");
         timeCounter.setText("appears soon");
-
-
-
+        log.setText(algorithm.getComment());
     }
 
     class eventHandler implements ActionListener{
@@ -105,6 +113,31 @@ public class StateWindow  extends JFrame {
             if(actionEvent.getSource() == interruptAlgorithm) {
                 parent.setVisible(true);
                 dispose();
+            }
+            if(actionEvent.getSource() == nextStep){
+                if(!algorithm.isFinished()){
+                    prevGraphPanel.removeAll();
+                    prevGraphPanel.add(labelBeforeState);
+                    mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
+                    grComp.setBounds(0, 30, 560, 510);
+                    prevGraphPanel.add(grComp);                    prevGraphPanel.updateUI();
+                    algorithm.makeStep();
+                    log.setText(log.getText() + algorithm.getComment());
+                    nextGraphPanel.removeAll();
+                    nextGraphPanel.add(labelCurrentState);
+                    grComp = algorithm.getCurrent().createGraphComponent();
+                    grComp.setBounds(0, 30, 560, 510);
+                    nextGraphPanel.add(grComp);
+                    nextGraphPanel.updateUI();
+                }
+                else{
+                    parent.setVisible(true);
+
+                    int id = (int)System.currentTimeMillis();
+                    ActionEvent message = new ActionEvent(algorithm.getCurrent(), id, "");
+                    recipient.actionPerformed(message);
+                    dispose();
+                }
             }
         }
     }

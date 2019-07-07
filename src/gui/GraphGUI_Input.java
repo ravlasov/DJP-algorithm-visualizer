@@ -82,6 +82,16 @@ public class GraphGUI_Input extends JFrame {
                 parent.setVisible(true);
                 dispose();
             }
+            if(actionEvent.getSource() == applyInputGraph)
+            {
+                /*if (!Graph.isValid(str)) {
+                    JLabel msg = new JLabel("The graph must be connected");
+                    msg.setFont( new Font("Monospaced", Font.PLAIN, 18));
+                    JOptionPane.showMessageDialog(GraphGUI_Input.this, msg,
+                            "Invalid input", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }*/
+            }
         }
     }
 
