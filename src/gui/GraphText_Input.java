@@ -1,5 +1,7 @@
 package gui;
 
+import algorithm.Graph;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -11,9 +13,11 @@ public class GraphText_Input extends JFrame {
     private JTextArea text              = new JTextArea();
     private JButton applyInputGraph     = new JButton("Apply");
     private JButton cancelInputGraph    = new JButton("Cancel");
+    private ActionListener recipient;
 
-    public GraphText_Input(MainWindow mainWindow, String str) {
+    public GraphText_Input(MainWindow mainWindow, ActionListener recipient) {
         super("Graph Input");
+        this.recipient = recipient;
         parent = mainWindow;
         parent.setEnabled(false);
         setBounds(250, 250, 800, 600);
@@ -40,7 +44,7 @@ public class GraphText_Input extends JFrame {
         mainPanel.add(applyInputGraph);
         mainPanel.add(cancelInputGraph);
 
-        scroll.setBounds   (30,30, 730, 430);
+        scroll.setBounds            (30,30, 730, 430);
         cancelInputGraph.setBounds  (30, 480, 360, 70);
         applyInputGraph.setBounds   (400, 480, 360, 70);
 
@@ -54,8 +58,7 @@ public class GraphText_Input extends JFrame {
 
 
         cancelInputGraph.addActionListener(new eventHandler());
-
-        applyInputGraph.setEnabled(false);
+        applyInputGraph.addActionListener(new eventHandler());
 
     }
 
@@ -63,6 +66,35 @@ public class GraphText_Input extends JFrame {
         @Override
         public void actionPerformed (ActionEvent actionEvent){
             if(actionEvent.getSource() == cancelInputGraph) {
+                parent.setEnabled(true);
+                dispose();
+            }
+            if(actionEvent.getSource() == applyInputGraph)
+            {
+                int id = (int)System.currentTimeMillis();
+
+                String str = text.getText() + "\n";
+                str = str.replaceAll("\n\n", "\n");
+                str = str.replaceAll("  ", " ");
+                str = str.replaceAll("\n ", "\n");
+                if (str.startsWith(" ")) {
+                    JLabel msg = new JLabel("Text starts with invalid symbol");
+                    msg.setFont( new Font("Monospaced", Font.PLAIN, 18));
+                    JOptionPane.showMessageDialog(GraphText_Input.this, msg,
+                                                    "Invalid input", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                /*if (!Graph.isValid(str)) {
+                    JLabel msg = new JLabel("The graph must be connected");
+                    msg.setFont( new Font("Monospaced", Font.PLAIN, 18));
+                    JOptionPane.showMessageDialog(GraphText_Input.this, msg,
+                            "Invalid input", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }*/
+
+
+                ActionEvent message = new ActionEvent(GraphText_Input.this, id, str);
+                recipient.actionPerformed(message);
                 parent.setEnabled(true);
                 dispose();
             }
