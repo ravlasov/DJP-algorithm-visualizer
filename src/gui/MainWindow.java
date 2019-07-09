@@ -3,7 +3,6 @@ package gui;
 import algorithm.DJPAlgorithm;
 import algorithm.Graph;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.view.mxGraph;
 
 import java.awt.*;
 import java.awt.event.*;
