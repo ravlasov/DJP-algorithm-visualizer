@@ -43,6 +43,9 @@ public class GraphGUI_Input extends JFrame {
             backUp = new Graph();
         parent.setVisible(false);
         setBounds(150, 150, 1210, 910);
+        Dimension d = new Dimension();
+        d.setSize(1050, 600);
+        setMinimumSize(d);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
                         {
@@ -81,7 +84,6 @@ public class GraphGUI_Input extends JFrame {
         modeEdge.setFont(f);
         modeVertex.setFont(f);
 
-
         ButtonGroup group = new ButtonGroup();
         group.add(modeVertex);
         group.add(modeEdge);
@@ -96,6 +98,7 @@ public class GraphGUI_Input extends JFrame {
 
         cancelInputGraph.addActionListener(new eventHandler());
         applyInputGraph.addActionListener(new eventHandler());
+        mainPanel.addComponentListener(new eventHandler());
 
 
         if (graph != null)
@@ -124,7 +127,7 @@ public class GraphGUI_Input extends JFrame {
         comp.setVisible(true);
         comp.setEnabled(true);
         comp.setConnectable(false);
-        comp.setBounds(0, 0,  1140, 740);
+        comp.setBounds(0, 0,  inputGraphPanel.getWidth(), inputGraphPanel.getHeight());
         comp.setDragEnabled(false);
         comp.getGraphControl().addMouseListener(new MouseListener() {
             @Override
@@ -252,7 +255,7 @@ public class GraphGUI_Input extends JFrame {
 
     }
 
-    class eventHandler implements ActionListener, ChangeListener {
+    class eventHandler implements ActionListener, ChangeListener, ComponentListener {
         @Override
         public void actionPerformed (ActionEvent actionEvent){
             if(actionEvent.getSource() == cancelInputGraph) {
@@ -332,6 +335,46 @@ public class GraphGUI_Input extends JFrame {
                     leftMost = v.getGeometry().getY();
             }
             return 10 - leftMost;
+        }
+
+        @Override
+        public void componentResized(ComponentEvent componentEvent) {
+            if (componentEvent.getComponent() == mainPanel)
+            {
+                int w = mainPanel.getWidth();
+                int width = w;
+                w /= 60;
+                int h = mainPanel.getHeight();
+                int height = h;
+                h /=60;
+                inputGraphPanel.setBounds   (w,h, mainPanel.getWidth() - 2 * w, mainPanel.getHeight() - 70 - 3 * h);
+                inputMode.setBounds         (w, mainPanel.getHeight() - h - 70, 120, 70);
+                cancelInputGraph.setBounds  (mainPanel.getWidth() - 2 * w - 660, mainPanel.getHeight() - h - 50, 300, 50);
+                applyInputGraph.setBounds   (mainPanel.getWidth() - w - 360, mainPanel.getHeight() - h - 70, 360, 70);
+                modeVertex.setBounds        (120 + w, mainPanel.getHeight() - h - 70, 200, 45);
+                modeEdge.setBounds          (120 + w, mainPanel.getHeight() - h - 35, 200, 45);
+
+                for (int i = 0; i < inputGraphPanel.getComponentCount(); i++)
+                {
+                    if (inputGraphPanel.getComponent(i) instanceof mxGraphComponent)
+                        inputGraphPanel.getComponent(i).setBounds(0, 0, width, height);
+                }
+            }
+        }
+
+        @Override
+        public void componentMoved(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void componentShown(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void componentHidden(ComponentEvent componentEvent) {
+
         }
     }
 

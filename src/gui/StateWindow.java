@@ -20,11 +20,13 @@ public class StateWindow  extends JFrame {
     private JPanel prevGraphPanel       = new JPanel();
     private JPanel nextGraphPanel       = new JPanel();
     private JTextArea log               = new JTextArea();
+    private JScrollPane scroll;
 
     private JLabel labelBeforeState     = new JLabel("Before State Graph", SwingConstants.CENTER);
     private JLabel labelCurrentState    = new JLabel("Current State Graph", SwingConstants.CENTER);
     private DJPAlgorithm algorithm;
     private ActionListener recipient;
+    private Timer timer;
 
     public StateWindow(MainWindow  mainWindow, ActionListener recipient, DJPAlgorithm algorithm) {
         super("State");
@@ -33,6 +35,9 @@ public class StateWindow  extends JFrame {
         parent = mainWindow;
         parent.setVisible(false);
         setBounds(150, 150, 1210, 900);
+        Dimension d = new Dimension();
+        d.setSize(1080, 700);
+        setMinimumSize(d);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
                         {
@@ -49,7 +54,7 @@ public class StateWindow  extends JFrame {
         mainPanel.setLayout(null);
         add(mainPanel);
 
-        JScrollPane scroll = new JScrollPane(log);
+        scroll = new JScrollPane(log);
 
         mainPanel.add(prevGraphPanel);
         mainPanel.add(nextGraphPanel);
@@ -76,10 +81,9 @@ public class StateWindow  extends JFrame {
         nextGraphPanel.add(labelCurrentState);
         labelCurrentState.setBounds(0,0,560,20);
         nextGraphPanel.setLayout(null);
-        //mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
         mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
 
-        grComp.setBounds(0, 30, 560, 510);
+        grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
         nextGraphPanel.add(grComp);
         nextGraphPanel.updateUI();
 
@@ -99,17 +103,18 @@ public class StateWindow  extends JFrame {
 
         interruptAlgorithm.addActionListener(new eventHandler());
         nextStep.addActionListener(new eventHandler());
+        prevStep.addActionListener(new eventHandler());
+        startPauseTimer.addActionListener(new eventHandler());
+        mainPanel.addComponentListener(new eventHandler());
 
         log.setEditable(false);
 
-        prevStep.setEnabled(false);
-        startPauseTimer.setEnabled(false);
 
         timeCounter.setText("appears soon");
         log.setText(algorithm.getComment());
     }
 
-    class eventHandler implements ActionListener{
+    class eventHandler implements ActionListener, ComponentListener{
         @Override
         public void actionPerformed (ActionEvent actionEvent){
             if(actionEvent.getSource() == interruptAlgorithm) {
@@ -122,15 +127,16 @@ public class StateWindow  extends JFrame {
                     prevGraphPanel.add(labelBeforeState);
                     //mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
                     mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
-                    grComp.setBounds(0, 30, 560, 510);
-                    prevGraphPanel.add(grComp);                    prevGraphPanel.updateUI();
+                    grComp.setBounds(0, 30, prevGraphPanel.getWidth(), prevGraphPanel.getHeight() - 30);
+                    prevGraphPanel.add(grComp);
+                    prevGraphPanel.updateUI();
                     algorithm.makeStep();
                     log.setText(log.getText() + algorithm.getComment());
                     nextGraphPanel.removeAll();
                     nextGraphPanel.add(labelCurrentState);
                     //grComp = algorithm.getCurrent().createGraphComponent();
                     grComp = algorithm.getCurrent().updateGraphComponent();
-                    grComp.setBounds(0, 30, 560, 510);
+                    grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
                     nextGraphPanel.add(grComp);
                     nextGraphPanel.updateUI();
                 }
@@ -143,6 +149,94 @@ public class StateWindow  extends JFrame {
                     dispose();
                 }
             }
+            if(actionEvent.getSource() == prevStep)
+            {
+                if (algorithm.canBeUndone()) {
+                    //System.out.println("Undo: " + algorithm.getComment());
+                    log.setText(log.getText().replaceAll(algorithm.getComment(), ""));
+                    mxGraphComponent  tmp = algorithm.undo();
+
+                    nextGraphPanel.removeAll();
+                    nextGraphPanel.add(labelCurrentState);
+                    mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
+                    grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
+                    nextGraphPanel.add(grComp);
+                    nextGraphPanel.updateUI();
+
+                    prevGraphPanel.removeAll();
+                    prevGraphPanel.add(labelBeforeState);
+                    tmp.setBounds(0, 30, prevGraphPanel.getWidth(), prevGraphPanel.getHeight() - 30);
+                    prevGraphPanel.add(tmp);
+                    prevGraphPanel.updateUI();
+                }
+
+            }
+            if(actionEvent.getSource() == startPauseTimer)
+            {
+                if (timer == null) {
+                    timer = new Timer(1000, x -> {
+                        System.out.println("Time");
+                    });
+                    timer.start();
+                    startPauseTimer.setText("Stop timer");
+                }
+                else
+                {
+                    System.out.println("Timer stopped");
+                    startPauseTimer.setText("Start timer");
+                    timer.stop();
+                    timer = null;
+                }
+            }
+        }
+
+
+        @Override
+        public void componentResized(ComponentEvent componentEvent) {
+            if (componentEvent.getComponent() == mainPanel)
+            {
+                int w = mainPanel.getWidth();
+                w = (w - 1055) / 6;
+                int h = mainPanel.getHeight();
+                h /= 30;
+                int width = mainPanel.getWidth();
+                int height = mainPanel.getHeight() - 4 * h - 70;
+
+                prevGraphPanel.setBounds    (w, h, (width - 3 * w) / 2, height * 2 / 3);
+                nextGraphPanel.setBounds    ((width - 3 * w) / 2 + 2 * w, h, (width - 3 * w) / 2, height * 2 / 3);
+                scroll.setBounds            (w, height * 2 / 3 + 2 * h, mainPanel.getWidth() - 2 * w, height / 3);
+                interruptAlgorithm.setBounds(w, mainPanel.getHeight() - 70 - h,265, 70);
+                prevStep.setBounds          (2 * w + 265, mainPanel.getHeight() - 70 - h, 265, 70);
+                nextStep.setBounds          (3 * w + 530, mainPanel.getHeight() - 70 - h, 265, 70);
+                startPauseTimer.setBounds   (4 * w + 795, mainPanel.getHeight() - 70 - h, 120, 70);
+                timeCounter.setBounds       (5 * w + 915, mainPanel.getHeight() - 70 - h, 140, 70);
+
+                for (int i = 0; i < prevGraphPanel.getComponentCount(); i++)
+                {
+                    if (prevGraphPanel.getComponent(i) instanceof mxGraphComponent)
+                        prevGraphPanel.getComponent(i).setBounds(0, 30, width, height - 30);
+                }
+                for (int i = 0; i < nextGraphPanel.getComponentCount(); i++)
+                {
+                    if (nextGraphPanel.getComponent(i) instanceof mxGraphComponent)
+                        nextGraphPanel.getComponent(i).setBounds(0, 30, width, height - 30);
+                }
+            }
+        }
+
+        @Override
+        public void componentMoved(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void componentShown(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void componentHidden(ComponentEvent componentEvent) {
+
         }
     }
 }

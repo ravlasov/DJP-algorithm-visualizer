@@ -10,6 +10,7 @@ public class GraphText_Input extends JFrame {
     private final MainWindow parent;
     private JPanel mainPanel            = new JPanel();
     private JTextArea text              = new JTextArea();
+    private JScrollPane scroll;
     private JButton applyInputGraph     = new JButton("Apply");
     private JButton cancelInputGraph    = new JButton("Cancel");
     private ActionListener recipient;
@@ -21,6 +22,9 @@ public class GraphText_Input extends JFrame {
         parent.setEnabled(false);
         text.setText(str);
         setBounds(250, 250, 800, 600);
+        Dimension d = new Dimension();
+        d.setSize(760, 300);
+        setMinimumSize(d);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
                         {
@@ -38,7 +42,7 @@ public class GraphText_Input extends JFrame {
         mainPanel.setLayout(null);
         add(mainPanel);
 
-        JScrollPane scroll = new JScrollPane(text);
+        scroll = new JScrollPane(text);
 
         mainPanel.add(scroll);
         mainPanel.add(applyInputGraph);
@@ -59,10 +63,11 @@ public class GraphText_Input extends JFrame {
 
         cancelInputGraph.addActionListener(new eventHandler());
         applyInputGraph.addActionListener(new eventHandler());
+        mainPanel.addComponentListener(new eventHandler());
 
     }
 
-    class eventHandler implements ActionListener{
+    class eventHandler implements ActionListener, ComponentListener{
         @Override
         public void actionPerformed (ActionEvent actionEvent){
             if(actionEvent.getSource() == cancelInputGraph) {
@@ -107,6 +112,39 @@ public class GraphText_Input extends JFrame {
                 parent.setEnabled(true);
                 dispose();
             }
+        }
+
+        @Override
+        public void componentResized(ComponentEvent componentEvent) {
+            if (componentEvent.getComponent() == mainPanel)
+            {
+                int w = mainPanel.getWidth();
+                int width = w;
+                int h = mainPanel.getHeight();
+                int height = h;
+                w /= 60;
+                width -= 2 * w;
+                h = h / 60;
+                height -= 3 * h + 70;
+                scroll.setBounds            (w,h, width, height);
+                cancelInputGraph.setBounds  (w, mainPanel.getHeight() - 70 -  h, 360, 70);
+                applyInputGraph.setBounds   (mainPanel.getWidth() - 360 - w, mainPanel.getHeight() - 70 -  h, 360, 70);
+            }
+        }
+
+        @Override
+        public void componentMoved(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void componentShown(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void componentHidden(ComponentEvent componentEvent) {
+
         }
     }
 }

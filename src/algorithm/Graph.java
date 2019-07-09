@@ -82,6 +82,25 @@ public class Graph {
         answerEdgesList.add(e);
     }
 
+    public void paintVisited(ArrayList<Vertex> visited)
+    {
+        for (Edge e : edgeList)
+        {
+            Vertex[] v = e.getAdjasent();
+            if (visited.contains(v[0]) && visited.contains(v[1]))
+            {
+                if (e.getColor() != Color.GREEN)
+                    e.setColor(Color.WHITE);
+            }
+            else {
+                if (!visited.contains(v[0]))
+                    v[0].setColor(Color.GRAY);
+                if (!visited.contains(v[1]))
+                    v[1].setColor(Color.GRAY);
+            }
+        }
+    }
+
     public Edge getFirstEdge()
     {
         return edgeList.get(0);
@@ -327,12 +346,12 @@ public class Graph {
         String delimeter1 = "\n";
         String delimeter2 = " ";
         subStr = str1.split(delimeter1);
-        int[][] arr = new int[2][subStr.length];
+        String[][] arr = new String[2][subStr.length];
         String[] tmpStr;
         for (int i = 0; i < subStr.length; i++) {
             tmpStr = subStr[i].split(delimeter2);
-            arr[0][i] = Integer.parseInt(tmpStr[0]);
-            arr[1][i] = Integer.parseInt(tmpStr[1]);
+            arr[0][i] = tmpStr[0];
+            arr[1][i] = tmpStr[1];
         }
 
         boolean[] checked = new boolean[subStr.length];
@@ -348,11 +367,12 @@ public class Graph {
 
 }
 class processHelper {
-    public static void goInside(int[][] arr, boolean[] checked, int tmp){
+    public static void goInside(String[][] arr, boolean[] checked, int tmp){
         for(int i = 0; i < checked.length; i++){
             if(checked[i])
                 continue;
-            if(arr[0][i] == arr[0][tmp] || arr[1][i] == arr[0][tmp] || arr[0][i] == arr[1][tmp] || arr[1][i] == arr[1][tmp]){
+            if(arr[0][i].equals(arr[0][tmp]) || arr[1][i].equals(arr[0][tmp]) ||
+                    arr[0][i].equals(arr[1][tmp]) || arr[1][i].equals(arr[1][tmp])){
                 checked[i] = true;
                 goInside(arr, checked, i);
             }
