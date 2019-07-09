@@ -31,6 +31,9 @@ public class MainWindow extends JFrame {
     public MainWindow() {
         super("DJP Algorithm Visualizer");
         setBounds(150, 150, 1210, 900);
+        Dimension d = new Dimension();
+        d.setSize(1080, 700);
+        setMinimumSize(d);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
@@ -82,6 +85,8 @@ public class MainWindow extends JFrame {
         getGraphFromFile.addActionListener(new eventHandler());
         saveOutputGraphToFile.addActionListener(new eventHandler());
         saveInputGraphToFile.addActionListener(new eventHandler());
+
+        mainPanel.addComponentListener(new eventHandler());
     }
 
     public static void main(String[] args) {
@@ -89,7 +94,7 @@ public class MainWindow extends JFrame {
     }
 
 
-    class eventHandler implements ActionListener {
+    class eventHandler implements ActionListener, ComponentListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             if(actionEvent.getSource() == runAlgorithm) {
@@ -145,9 +150,10 @@ public class MainWindow extends JFrame {
                 inputGraphPanel.removeAll();
                 inputGraphPanel.add(lableInputGraph);
                 inputGraphPanel.setLayout(null);
-                mxGraphComponent grComp = graph.createGraphComponent();
+                graph.createGraphComponent();
+                mxGraphComponent grComp = graph.updateGraphComponent();
                 grComp.setEnabled(false);
-                grComp.setBounds(0, 20 , 555, 610);
+                grComp.setBounds(0, 30 , inputGraphPanel.getWidth(), inputGraphPanel.getHeight());
                 inputGraphPanel.add(grComp);
                 inputGraphPanel.updateUI();
             }
@@ -224,8 +230,9 @@ public class MainWindow extends JFrame {
                 inputGraphPanel.removeAll();
                 inputGraphPanel.add(lableInputGraph);
                 inputGraphPanel.setLayout(null);
-                mxGraphComponent grComp = graph.createGraphComponent();
-                grComp.setBounds(0, 30 , 555, 600);
+                graph.createGraphComponent();
+                mxGraphComponent grComp = graph.updateGraphComponent();
+                grComp.setBounds(0, 30,  inputGraphPanel.getWidth(), inputGraphPanel.getHeight());
                 grComp.setEnabled(false);
                 inputGraphPanel.add(grComp);
                 inputGraphPanel.updateUI();
@@ -238,7 +245,7 @@ public class MainWindow extends JFrame {
                     outputGraphPanel.setLayout(null);
                     Graph tmp = (Graph) actionEvent.getSource();
                     mxGraphComponent grComp = tmp.updateGraphComponent();
-                    grComp.setBounds(0, 30, 555, 600);
+                    grComp.setBounds(0, 30, outputGraphPanel.getWidth(), outputGraphPanel.getHeight());
                     outputGraphPanel.add(grComp);
                     outputGraphPanel.updateUI();
                 }
@@ -252,11 +259,61 @@ public class MainWindow extends JFrame {
                     graph = (Graph) actionEvent.getSource();
                     mxGraphComponent grComp = graph.updateGraphComponent();
                     grComp.setEnabled(false);
-                    grComp.setBounds(0, 30, 555, 600);
+                    grComp.setBounds(0, 30, inputGraphPanel.getWidth(), inputGraphPanel.getHeight());
                     inputGraphPanel.add(grComp);
                     inputGraphPanel.updateUI();
                 }
             }
+        }
+
+        @Override
+        public void componentResized(ComponentEvent componentEvent) {
+            if (componentEvent.getComponent() == mainPanel)
+            {
+                int w = mainPanel.getWidth();
+                int h = mainPanel.getHeight();
+                w = (w - 360 * 3) / 4;
+                h = h / 60;
+                getGraphFromFile.setBounds      (w, h, 360, 70);
+                getGraphFromKeyboard.setBounds  (360 + 2 * w, h, 360, 70);
+                getGraphFromGUI.setBounds       (720 + 3 * w, h, 360, 70);
+                saveOutputGraphToFile.setBounds (720 + 3 * w, 70 + 2 * h , 360, 50);
+                saveInputGraphToFile.setBounds  (w, 70 + 2 * h , 360, 50);
+                runAlgorithm.setBounds          (360 + 2 * w, 70 + 2 * h , 360, 70);
+                int width = mainPanel.getWidth();
+                width -= 60;
+                width /= 2;
+                int height = mainPanel.getHeight();
+                height = height - 140 - 4 * h;
+                inputGraphPanel.setBounds       (20         , 140 + 3 * h, width, height);
+                outputGraphPanel.setBounds      (width + 40, 140 + 3 * h, width, height);
+
+                for (int i = 0; i < inputGraphPanel.getComponentCount(); i++)
+                {
+                    if (inputGraphPanel.getComponent(i) instanceof mxGraphComponent)
+                        inputGraphPanel.getComponent(i).setBounds(0, 30, width, height - 30);
+                }
+                for (int i = 0; i < outputGraphPanel.getComponentCount(); i++)
+                {
+                    if (outputGraphPanel.getComponent(i) instanceof mxGraphComponent)
+                        outputGraphPanel.getComponent(i).setBounds(0, 30, width, height - 30);
+                }
+            }
+        }
+
+        @Override
+        public void componentMoved(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void componentShown(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void componentHidden(ComponentEvent componentEvent) {
+
         }
     }
 
