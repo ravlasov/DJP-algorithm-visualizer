@@ -76,7 +76,9 @@ public class StateWindow  extends JFrame {
         nextGraphPanel.add(labelCurrentState);
         labelCurrentState.setBounds(0,0,560,20);
         nextGraphPanel.setLayout(null);
-        mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
+        //mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
+        mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
+
         grComp.setBounds(0, 30, 560, 510);
         nextGraphPanel.add(grComp);
         nextGraphPanel.updateUI();
@@ -118,14 +120,16 @@ public class StateWindow  extends JFrame {
                 if(!algorithm.isFinished()){
                     prevGraphPanel.removeAll();
                     prevGraphPanel.add(labelBeforeState);
-                    mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
+                    //mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
+                    mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
                     grComp.setBounds(0, 30, 560, 510);
                     prevGraphPanel.add(grComp);                    prevGraphPanel.updateUI();
                     algorithm.makeStep();
                     log.setText(log.getText() + algorithm.getComment());
                     nextGraphPanel.removeAll();
                     nextGraphPanel.add(labelCurrentState);
-                    grComp = algorithm.getCurrent().createGraphComponent();
+                    //grComp = algorithm.getCurrent().createGraphComponent();
+                    grComp = algorithm.getCurrent().updateGraphComponent();
                     grComp.setBounds(0, 30, 560, 510);
                     nextGraphPanel.add(grComp);
                     nextGraphPanel.updateUI();
@@ -134,7 +138,7 @@ public class StateWindow  extends JFrame {
                     parent.setVisible(true);
 
                     int id = (int)System.currentTimeMillis();
-                    ActionEvent message = new ActionEvent(algorithm.getCurrent(), id, "");
+                    ActionEvent message = new ActionEvent(algorithm.getCurrent(), id, "Finished");
                     recipient.actionPerformed(message);
                     dispose();
                 }
