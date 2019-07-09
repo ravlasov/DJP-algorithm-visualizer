@@ -37,6 +37,14 @@ public class DJPAlgorithm implements AlgorithmControl {
     public void makeStep() {
         if (phase == 0)
         {
+            if (incedentEdgesList != null){
+                for (Edge e : incedentEdgesList)
+                {
+                    if (e.getColor() != Color.GREEN)
+                        e.setColor(Color.GRAY);
+                }
+                incedentEdgesList.clear();
+            }
             incedentEdgesList = getAllIncedentEdges();
             for (Edge e : incedentEdgesList)
             {
@@ -45,7 +53,7 @@ public class DJPAlgorithm implements AlgorithmControl {
             phase = 1;
             comment = "Current adjasent edges are:\n" + Edge.getListAsString(incedentEdgesList) +
                     (bothVisited.length() == 0 ? "" :
-                      "These edges are no longer considered:\n" + bothVisited);
+                      "Theese edges are no longer considered:\n" + bothVisited);
             bothVisited = null;
             if (incedentEdgesList.size() == 0) {
                 comment = "Algorithm is finished. Answer is:\n" + gr.answerToString();
@@ -59,10 +67,12 @@ public class DJPAlgorithm implements AlgorithmControl {
             cheapest.setColor(Color.GREEN);
             gr.addToAnswer(cheapest);
             Vertex[] v = cheapest.getAdjasent();
+
             for (Edge e : incedentEdgesList)
             {
+                Color c = new Color(0, 255, 238); //#00FFEE
                 if (e.getColor() == Color.BLUE)
-                    e.setColor(Color.GRAY);
+                    e.setColor(c);
             }
             if (!isVisited(v[0])) {
                 visited.add(v[0]);
@@ -72,7 +82,6 @@ public class DJPAlgorithm implements AlgorithmControl {
                 visited.add(v[1]);
                 v[1].setColor(Color.GREEN);
             }
-            incedentEdgesList.clear();
             phase = 0;
         }
 

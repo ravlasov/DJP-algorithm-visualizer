@@ -8,18 +8,18 @@ import javax.swing.*;
 
 public class GraphText_Input extends JFrame {
     private final MainWindow parent;
-    private String textString;
     private JPanel mainPanel            = new JPanel();
     private JTextArea text              = new JTextArea();
     private JButton applyInputGraph     = new JButton("Apply");
     private JButton cancelInputGraph    = new JButton("Cancel");
     private ActionListener recipient;
 
-    public GraphText_Input(MainWindow mainWindow, ActionListener recipient) {
+    public GraphText_Input(MainWindow mainWindow, ActionListener recipient, String str) {
         super("Graph Input");
         this.recipient = recipient;
         parent = mainWindow;
         parent.setEnabled(false);
+        text.setText(str);
         setBounds(250, 250, 800, 600);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
@@ -73,7 +73,16 @@ public class GraphText_Input extends JFrame {
             {
                 int id = (int)System.currentTimeMillis();
 
-                String str = text.getText() + "\n";
+                String str = text.getText();
+                if (str.length() == 0)
+                {
+                    JLabel msg = new JLabel("The graph must contain at least one edge");
+                    msg.setFont( new Font("Monospaced", Font.PLAIN, 18));
+                    JOptionPane.showMessageDialog(GraphText_Input.this, msg,
+                            "Invalid input", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                str += "\n";
                 str = str.replaceAll("\n\n", "\n");
                 str = str.replaceAll("  ", " ");
                 str = str.replaceAll("\n ", "\n");
@@ -84,13 +93,13 @@ public class GraphText_Input extends JFrame {
                                                     "Invalid input", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                /*if (!Graph.isValid(str)) {
+                if (!Graph.isValid(str)) {
                     JLabel msg = new JLabel("The graph must be connected");
                     msg.setFont( new Font("Monospaced", Font.PLAIN, 18));
                     JOptionPane.showMessageDialog(GraphText_Input.this, msg,
                             "Invalid input", JOptionPane.WARNING_MESSAGE);
                     return;
-                }*/
+                }
 
 
                 ActionEvent message = new ActionEvent(GraphText_Input.this, id, str);
