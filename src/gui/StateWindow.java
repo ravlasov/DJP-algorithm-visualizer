@@ -11,12 +11,13 @@ import javax.swing.*;
 
 public class StateWindow  extends JFrame {
     private final MainWindow parent;
+    private int timerTime               = 10000;
     private JPanel mainPanel            = new JPanel();
     private JButton nextStep            = new JButton("Next step ->");
     private JButton prevStep            = new JButton("<- Previous step");
     private JButton interruptAlgorithm  = new JButton("Go to main menu");
     private JButton startPauseTimer     = new JButton("Pause");
-    private JLabel timeCounter          = new JLabel("Timer");
+    private JLabel timeCounter          = new JLabel(Integer.toString(timerTime/1000));
     private JPanel prevGraphPanel       = new JPanel();
     private JPanel nextGraphPanel       = new JPanel();
     private JTextArea log               = new JTextArea();
@@ -26,7 +27,17 @@ public class StateWindow  extends JFrame {
     private JLabel labelCurrentState    = new JLabel("Current State Graph", SwingConstants.CENTER);
     private DJPAlgorithm algorithm;
     private ActionListener recipient;
-    private Timer timer;
+    private boolean timerFlaag          = true;
+    private int currentTime             = timerTime;
+    private javax.swing.Timer timerLabel= new javax.swing.Timer(1000, y->{
+        currentTime -= 1000;
+        if(currentTime == 0) {
+            nextStep.doClick();
+            currentTime = timerTime;
+        }
+        timeCounter.setText(Integer.toString(currentTime/1000));
+        timeCounter.updateUI();
+    });
 
     public StateWindow(MainWindow  mainWindow, ActionListener recipient, DJPAlgorithm algorithm) {
         super("State");
@@ -108,16 +119,17 @@ public class StateWindow  extends JFrame {
         mainPanel.addComponentListener(new eventHandler());
 
         log.setEditable(false);
-
-
-        timeCounter.setText("appears soon");
+        timerLabel.start();
+        startPauseTimer.setText("Pause");
+        timeCounter.addMouseListener(new eventHandler());
         log.setText(algorithm.getComment());
     }
 
-    class eventHandler implements ActionListener, ComponentListener{
+    class eventHandler implements ActionListener, ComponentListener, MouseListener {
         @Override
         public void actionPerformed (ActionEvent actionEvent){
             if(actionEvent.getSource() == interruptAlgorithm) {
+                timerLabel.stop();
                 parent.setVisible(true);
                 dispose();
             }
@@ -139,10 +151,13 @@ public class StateWindow  extends JFrame {
                     grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
                     nextGraphPanel.add(grComp);
                     nextGraphPanel.updateUI();
+                    currentTime = timerTime;
+                    timeCounter.setText(Integer.toString(currentTime/1000));
+                    timeCounter.updateUI();
                 }
                 else{
                     parent.setVisible(true);
-
+                    timerLabel.stop();
                     int id = (int)System.currentTimeMillis();
                     ActionEvent message = new ActionEvent(algorithm.getCurrent(), id, "Finished");
                     recipient.actionPerformed(message);
@@ -151,6 +166,12 @@ public class StateWindow  extends JFrame {
             }
             if(actionEvent.getSource() == prevStep)
             {
+                timerLabel.stop();
+                timerFlaag = false;
+                startPauseTimer.setText("Start");
+                currentTime = timerTime;
+                timeCounter.setText(Integer.toString(currentTime/1000));
+                timeCounter.updateUI();
                 if (algorithm.canBeUndone()) {
                     //System.out.println("Undo: " + algorithm.getComment());
                     log.setText(log.getText().replaceAll(algorithm.getComment(), ""));
@@ -173,19 +194,15 @@ public class StateWindow  extends JFrame {
             }
             if(actionEvent.getSource() == startPauseTimer)
             {
-                if (timer == null) {
-                    timer = new Timer(1000, x -> {
-                        System.out.println("Time");
-                    });
-                    timer.start();
-                    startPauseTimer.setText("Stop timer");
+                if(timerFlaag){
+                    timerLabel.stop();
+                    startPauseTimer.setText("Start");
+                    timerFlaag = false;
                 }
-                else
-                {
-                    System.out.println("Timer stopped");
-                    startPauseTimer.setText("Start timer");
-                    timer.stop();
-                    timer = null;
+                else{
+                    timerLabel.start();
+                    startPauseTimer.setText("Pause");
+                    timerFlaag = true;
                 }
             }
         }
@@ -236,6 +253,44 @@ public class StateWindow  extends JFrame {
 
         @Override
         public void componentHidden(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            timerLabel.stop();
+            try {
+                int tmpTime = Integer.parseInt(JOptionPane.showInputDialog(StateWindow.this, "Input new timer time: ", "10"));
+                if (tmpTime > 0) {
+                    if(tmpTime < currentTime)
+                        currentTime = tmpTime * 1000;
+                    timerTime = tmpTime * 1000;
+                }
+
+            }catch (Exception e1){
+                timerTime = 10000;
+            }
+
+            timerLabel.start();
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
 
         }
     }
