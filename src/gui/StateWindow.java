@@ -1,9 +1,7 @@
 package gui;
 
 import algorithm.DJPAlgorithm;
-import algorithm.Graph;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.view.mxGraph;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -17,7 +15,7 @@ public class StateWindow  extends JFrame {
     private JButton prevStep            = new JButton("<- Previous step");
     private JButton interruptAlgorithm  = new JButton("Go to main menu");
     private JButton startPauseTimer     = new JButton("Pause");
-    private JLabel timeCounter          = new JLabel(Integer.toString(timerTime/1000));
+    private JLabel timeCounter          = new JLabel(Integer.toString(timerTime/1000), SwingConstants.CENTER);
     private JPanel prevGraphPanel       = new JPanel();
     private JPanel nextGraphPanel       = new JPanel();
     private JTextArea log               = new JTextArea();
@@ -103,7 +101,7 @@ public class StateWindow  extends JFrame {
         prevStep.setFont(f);
         nextStep.setFont(f);
         startPauseTimer.setFont(f);
-        timeCounter.setFont(f);
+        timeCounter.setFont(new Font("Monospaced", Font.PLAIN, 30));
         labelCurrentState.setFont(f);
         labelBeforeState.setFont(f);
         log.setFont(f);
@@ -137,7 +135,6 @@ public class StateWindow  extends JFrame {
                 if(!algorithm.isFinished()){
                     prevGraphPanel.removeAll();
                     prevGraphPanel.add(labelBeforeState);
-                    //mxGraphComponent grComp = algorithm.getCurrent().createGraphComponent();
                     mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
                     grComp.setBounds(0, 30, prevGraphPanel.getWidth(), prevGraphPanel.getHeight() - 30);
                     prevGraphPanel.add(grComp);
@@ -146,7 +143,6 @@ public class StateWindow  extends JFrame {
                     log.setText(log.getText() + algorithm.getComment());
                     nextGraphPanel.removeAll();
                     nextGraphPanel.add(labelCurrentState);
-                    //grComp = algorithm.getCurrent().createGraphComponent();
                     grComp = algorithm.getCurrent().updateGraphComponent();
                     grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
                     nextGraphPanel.add(grComp);
@@ -173,7 +169,6 @@ public class StateWindow  extends JFrame {
                 timeCounter.setText(Integer.toString(currentTime/1000));
                 timeCounter.updateUI();
                 if (algorithm.canBeUndone()) {
-                    //System.out.println("Undo: " + algorithm.getComment());
                     log.setText(log.getText().replaceAll(algorithm.getComment(), ""));
                     mxGraphComponent  tmp = algorithm.undo();
 
@@ -260,7 +255,8 @@ public class StateWindow  extends JFrame {
         public void mouseClicked(MouseEvent e) {
             timerLabel.stop();
             try {
-                int tmpTime = Integer.parseInt(JOptionPane.showInputDialog(StateWindow.this, "Input new timer time: ", "10"));
+                int tmpTime = Integer.parseInt(JOptionPane.showInputDialog(StateWindow.this,
+                        "Input new timer time: ", String.valueOf(currentTime/1000)));
                 if (tmpTime > 0) {
                     if(tmpTime < currentTime)
                         currentTime = tmpTime * 1000;

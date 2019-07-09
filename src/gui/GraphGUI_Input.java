@@ -3,12 +3,10 @@ package gui;
 import algorithm.Graph;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxEvent;
 import com.mxgraph.view.mxGraph;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.*;
