@@ -3,6 +3,7 @@ package gui;
 import algorithm.DJPAlgorithm;
 import algorithm.Graph;
 import com.mxgraph.swing.mxGraphComponent;
+import com.sun.tools.javac.Main;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -22,9 +23,12 @@ public class MainWindow extends JFrame {
     private JPanel inputGraphPanel          = new JPanel();
     private JPanel outputGraphPanel         = new JPanel();
 
-    private JLabel lableInputGraph          = new JLabel("Input Graph", SwingConstants.CENTER);
-    private JLabel lableOutputGraph         = new JLabel("Output Graph", SwingConstants.CENTER);
+    private JLabel labelInputGraph          = new JLabel("Input Graph", SwingConstants.CENTER);
+    private JLabel labelOutputGraph         = new JLabel("Output Graph", SwingConstants.CENTER);
     private Graph graph = null;
+
+    private mxGraphComponent inpGraphComp;
+    private mxGraphComponent outpGraphComp;
 
 
     public MainWindow() {
@@ -59,11 +63,11 @@ public class MainWindow extends JFrame {
         inputGraphPanel.setBounds       (30, 210, 555, 630);
         outputGraphPanel.setBounds      (615 ,210 ,555, 630);
 
-        inputGraphPanel.add(lableInputGraph);
-        lableInputGraph.setBounds(0, 0, 555, 20);
+        inputGraphPanel.add(labelInputGraph);
+        labelInputGraph.setBounds(0, 0, 555, 20);
 
-        outputGraphPanel.add(lableOutputGraph);
-        lableOutputGraph.setBounds(0,0, 555, 20);
+        outputGraphPanel.add(labelOutputGraph);
+        labelOutputGraph.setBounds(0,0, 555, 20);
 
         Font f = new Font("Monospaced", Font.PLAIN, 18);
         getGraphFromFile.setFont(f);
@@ -72,20 +76,22 @@ public class MainWindow extends JFrame {
         saveOutputGraphToFile.setFont(f);
         saveInputGraphToFile.setFont(f);
         runAlgorithm.setFont(f);
-        lableInputGraph.setFont(f);
-        lableOutputGraph.setFont(f);
+        labelInputGraph.setFont(f);
+        labelOutputGraph.setFont(f);
 
         inputGraphPanel.setBackground(c);
         outputGraphPanel.setBackground(c);
 
-        runAlgorithm.addActionListener(new eventHandler());
-        getGraphFromGUI.addActionListener(new eventHandler());
-        getGraphFromKeyboard.addActionListener(new eventHandler());
-        getGraphFromFile.addActionListener(new eventHandler());
-        saveOutputGraphToFile.addActionListener(new eventHandler());
-        saveInputGraphToFile.addActionListener(new eventHandler());
-
-        mainPanel.addComponentListener(new eventHandler());
+        eventHandler eH = new eventHandler();
+        runAlgorithm.addActionListener(eH);
+        getGraphFromGUI.addActionListener(eH);
+        getGraphFromKeyboard.addActionListener(eH);
+        getGraphFromFile.addActionListener(eH);
+        saveOutputGraphToFile.addActionListener(eH);
+        saveInputGraphToFile.addActionListener(eH);
+        mainPanel.addComponentListener(eH);
+        setFocusable(true);
+        addKeyListener(eH);
     }
 
     public static void main(String[] args) {
@@ -93,7 +99,7 @@ public class MainWindow extends JFrame {
     }
 
 
-    class eventHandler implements ActionListener, ComponentListener {
+    class eventHandler implements ActionListener, ComponentListener, KeyListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             if(actionEvent.getSource() == runAlgorithm) {
@@ -104,11 +110,18 @@ public class MainWindow extends JFrame {
                 //graph = Graph.getGraphFromString(graph.toString());
                 //graph.restoreMXGraph(bu);
                 graph.resetColors();
-                graph.print();
-                algorithm.init(graph);
+                String inp = JOptionPane.showInputDialog(MainWindow.this,
+                        "Input start vertex: ", "");
+                if (inp == null) {
+                    algorithm.init(graph);
+                }
+                else
+                {
+                    algorithm.init(graph, inp);
+                }
                 StateWindow state = new StateWindow(MainWindow.this, this, algorithm);
                 outputGraphPanel.removeAll();
-                outputGraphPanel.add(lableOutputGraph);
+                outputGraphPanel.add(labelOutputGraph);
             }
             if(actionEvent.getSource() == getGraphFromGUI){
                 GraphGUI_Input graphGUI_input = new GraphGUI_Input(MainWindow.this, this, graph);
@@ -147,7 +160,7 @@ public class MainWindow extends JFrame {
                 }
                 graph = Graph.getGraphFromString(str);
                 inputGraphPanel.removeAll();
-                inputGraphPanel.add(lableInputGraph);
+                inputGraphPanel.add(labelInputGraph);
                 inputGraphPanel.setLayout(null);
                 graph.createGraphComponent();
                 mxGraphComponent grComp = graph.updateGraphComponent();
@@ -227,7 +240,7 @@ public class MainWindow extends JFrame {
                 String str = actionEvent.getActionCommand();
                 graph = Graph.getGraphFromString(str);
                 inputGraphPanel.removeAll();
-                inputGraphPanel.add(lableInputGraph);
+                inputGraphPanel.add(labelInputGraph);
                 inputGraphPanel.setLayout(null);
                 graph.createGraphComponent();
                 mxGraphComponent grComp = graph.updateGraphComponent();
@@ -235,32 +248,36 @@ public class MainWindow extends JFrame {
                 grComp.setEnabled(false);
                 inputGraphPanel.add(grComp);
                 inputGraphPanel.updateUI();
+                inpGraphComp = graph.updateGraphComponent();
 
             }
             if(actionEvent.getSource() instanceof Graph){
                 if (actionEvent.getActionCommand().equals("Finished")) {
                     outputGraphPanel.removeAll();
-                    outputGraphPanel.add(lableOutputGraph);
+                    outputGraphPanel.add(labelOutputGraph);
                     outputGraphPanel.setLayout(null);
                     Graph tmp = (Graph) actionEvent.getSource();
                     mxGraphComponent grComp = tmp.updateGraphComponent();
-                    grComp.setBounds(0, 30, outputGraphPanel.getWidth(), outputGraphPanel.getHeight());
+                    grComp.setBounds(0, 30, outputGraphPanel.getWidth(), outputGraphPanel.getHeight() - 30);
                     outputGraphPanel.add(grComp);
                     outputGraphPanel.updateUI();
+                    outpGraphComp = graph.updateGraphComponent();
+
                 }
                 if (actionEvent.getActionCommand().equals("Edited") || actionEvent.getActionCommand().equals("Not changed"))
                 {
                     if (actionEvent.getSource() == null || actionEvent.getSource().toString().length() == 0)
                         return;
                     inputGraphPanel.removeAll();
-                    inputGraphPanel.add(lableInputGraph);
+                    inputGraphPanel.add(labelInputGraph);
                     inputGraphPanel.setLayout(null);
                     graph = (Graph) actionEvent.getSource();
                     mxGraphComponent grComp = graph.updateGraphComponent();
                     grComp.setEnabled(false);
-                    grComp.setBounds(0, 30, inputGraphPanel.getWidth(), inputGraphPanel.getHeight());
+                    grComp.setBounds(0, 30, inputGraphPanel.getWidth(), inputGraphPanel.getHeight() - 30);
                     inputGraphPanel.add(grComp);
                     inputGraphPanel.updateUI();
+                    inpGraphComp = graph.updateGraphComponent();
                 }
             }
         }
@@ -297,6 +314,22 @@ public class MainWindow extends JFrame {
                     if (outputGraphPanel.getComponent(i) instanceof mxGraphComponent)
                         outputGraphPanel.getComponent(i).setBounds(0, 30, width, height - 30);
                 }
+                if (inpGraphComp != null) {
+                    inputGraphPanel.removeAll();
+                    inputGraphPanel.add(labelInputGraph);
+                    inpGraphComp.setBounds(0, 30, inputGraphPanel.getWidth(), inputGraphPanel.getHeight() - 30);
+                    inputGraphPanel.add(inpGraphComp);
+                    inputGraphPanel.updateUI();
+                }
+                if (outpGraphComp != null)
+                {
+                    outputGraphPanel.removeAll();
+                    outputGraphPanel.add(labelOutputGraph);
+                    outpGraphComp.setBounds(0, 30, outputGraphPanel.getWidth(), outputGraphPanel.getHeight() - 30);
+                    outputGraphPanel.add(outpGraphComp);
+                    outputGraphPanel.updateUI();
+                }
+
             }
         }
 
@@ -312,6 +345,24 @@ public class MainWindow extends JFrame {
 
         @Override
         public void componentHidden(ComponentEvent componentEvent) {
+
+        }
+
+        @Override
+        public void keyTyped(KeyEvent keyEvent) {
+        }
+
+        @Override
+        public void keyPressed(KeyEvent keyEvent) {
+            int keyCode = keyEvent.getExtendedKeyCode();
+            if(keyCode == KeyEvent.VK_F1)
+            {
+                AboutWindow aboutWindow = new AboutWindow(MainWindow.this);
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent keyEvent) {
 
         }
     }

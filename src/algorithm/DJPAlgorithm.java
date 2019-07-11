@@ -24,8 +24,9 @@ public class DJPAlgorithm implements AlgorithmControl {
     @Override
     public void init(Graph graph) {
         gr = graph;
+        gr.resetToStart();
         acts = new Stack<>();
-        visited = new ArrayList<Vertex>();
+        visited = new ArrayList<>();
         Edge e = graph.getFirstEdge();
         Vertex[] v = e.getAdjasent();
         visited.add(v[0]);
@@ -37,11 +38,50 @@ public class DJPAlgorithm implements AlgorithmControl {
         incedentEdgesList = new ArrayList<>();
 
         comment = "Arbitrary Vertex selected: '" + v[0].getName() + "'.\n";
-
     }
 
     @Override
-    public Graph getCurrent() {
+    public void init(Graph graph, String startVertexName) {
+        gr = graph;
+        gr.resetToStart();
+        acts = new Stack<>();
+        visited = new ArrayList<>();
+        Vertex add;
+        String tmpStr = "";
+        ArrayList<Edge> e = gr.getIncedentEdges(new Vertex(startVertexName));
+        if (e.size() != 0) {
+            Vertex[] v = e.get(0).getAdjasent();
+            if (v[0].getName().equals(startVertexName)) {
+                visited.add(v[0]);
+                v[0].setColor(Color.GREEN);
+                add = v[0];
+            }
+            else {
+                visited.add(v[1]);
+                v[1].setColor(Color.GREEN);
+                add = v[1];
+            }
+        }
+        else
+        {
+            Edge m = graph.getFirstEdge();
+            Vertex[] v = m.getAdjasent();
+            visited.add(v[0]);
+            v[0].setColor(Color.GREEN);
+            add = v[0];
+            tmpStr = "Arbitraty ";
+        }
+        phase = 0;
+        finished = false;
+        beforeStep0 = gr.updateGraphComponent();
+        beforeStep1 = gr.updateGraphComponent();
+        incedentEdgesList = new ArrayList<>();
+
+        comment = tmpStr + "Vertex selected: '" + add.getName() + "'.\n";
+    }
+
+    @Override
+    public Graph getCurrentGraphState() {
         return gr;
     }
 
@@ -59,7 +99,6 @@ public class DJPAlgorithm implements AlgorithmControl {
                     if (e.getColor() != Color.GREEN)
                         e.setColor(Color.GRAY);
                 }
-                //incedentEdgesList.clear();
             }
             incedentEdgesList = getAllIncedentEdges();
             action.setNewIncedentEdges(incedentEdgesList);
@@ -74,7 +113,8 @@ public class DJPAlgorithm implements AlgorithmControl {
                       "Theese edges are no longer considered:\n" + bothVisited);
             bothVisited = null;
             if (incedentEdgesList.size() == 0) {
-                comment = "Algorithm is finished. Answer is:\n" + gr.answerToString();
+                comment = "Algorithm is finished. Answer is:\n" + gr.answerToString() + "Resulting cost is: " +
+                            gr.countFinalCost();
                 finished = true;
             }
         }
@@ -84,12 +124,12 @@ public class DJPAlgorithm implements AlgorithmControl {
             beforeStep1 = gr.updateGraphComponent();
 
             if (incedentEdgesList.size() == 0) {
-                System.out.println("!!!");
                 return;
             }
+
             Edge cheapest = Edge.getCheapestEdge(incedentEdgesList);
             action.setIncedentEdges(incedentEdgesList);
-
+            action.setAddedToAnswerEdge(cheapest);
             comment = "The cheapest one is: " + cheapest.toString();
             cheapest.setColor(Color.GREEN);
             gr.addToAnswer(cheapest);
@@ -105,13 +145,13 @@ public class DJPAlgorithm implements AlgorithmControl {
             if (!isVisited(v[0])) {
                 visited.add(v[0]);
                 v[0].setColor(Color.GREEN);
-                action.setAddedToAnswer(v[0]);
+                action.setAddedToAnswerVertex(v[0]);
 
             }
             if (!isVisited(v[1])) {
                 visited.add(v[1]);
                 v[1].setColor(Color.GREEN);
-                action.setAddedToAnswer(v[1]);
+                action.setAddedToAnswerVertex(v[1]);
             }
             acts.push(action);
             phase = 0;
@@ -179,7 +219,13 @@ public class DJPAlgorithm implements AlgorithmControl {
         return incedent;
     }
 
-
+    public mxGraphComponent getPrevState()
+    {
+        if (phase == 0)
+            return beforeStep1;
+        else
+            return beforeStep0;
+    }
 
 
     class actStep0 implements CanBeUndone {
@@ -250,7 +296,8 @@ public class DJPAlgorithm implements AlgorithmControl {
 
     class actStep1 implements CanBeUndone{
         private String lastComment;
-        private Vertex addedToAnswer;
+        private Vertex addedToAnswerVertex;
+        private Edge addedToAnswerEdge;
         private ArrayList<Edge> incedentEdges;
         private mxGraphComponent before0;
         private mxGraphComponent before1;
@@ -262,9 +309,12 @@ public class DJPAlgorithm implements AlgorithmControl {
             before1 = beforeStep1;
         }
 
-        public void setAddedToAnswer(Vertex e)
+        public void setAddedToAnswerVertex(Vertex e)
         {
-            addedToAnswer = e;
+            addedToAnswerVertex = e;
+        }
+        public void setAddedToAnswerEdge(Edge e) {
+            addedToAnswerEdge = e;
         }
         public void setIncedentEdges(ArrayList<Edge> list)
         {
@@ -276,9 +326,10 @@ public class DJPAlgorithm implements AlgorithmControl {
             beforeStep0 = before0;
             beforeStep1 = before1;
             comment = lastComment;
-            visited.remove(addedToAnswer);
-            addedToAnswer.setColor(Color.GRAY);
+            visited.remove(addedToAnswerVertex);
+            addedToAnswerVertex.setColor(Color.GRAY);
             incedentEdgesList = incedentEdges;
+            gr.removeFromAnswer(addedToAnswerEdge);
             for (Edge e : incedentEdges)
             {
                 e.setColor(Color.BLUE);

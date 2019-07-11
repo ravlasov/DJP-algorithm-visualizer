@@ -43,6 +43,8 @@ public class GraphText_Input extends JFrame {
         add(mainPanel);
 
         scroll = new JScrollPane(text);
+        text.setLineWrap(true);
+        text.setWrapStyleWord(true);
 
         mainPanel.add(scroll);
         mainPanel.add(applyInputGraph);
@@ -60,10 +62,10 @@ public class GraphText_Input extends JFrame {
         Color c = new Color(255, 250, 221); //#FFFADD
         text.setBackground(c);
 
-
-        cancelInputGraph.addActionListener(new eventHandler());
-        applyInputGraph.addActionListener(new eventHandler());
-        mainPanel.addComponentListener(new eventHandler());
+        eventHandler eH = new eventHandler();
+        cancelInputGraph.addActionListener(eH);
+        applyInputGraph.addActionListener(eH);
+        mainPanel.addComponentListener(eH);
 
     }
 
