@@ -27,13 +27,19 @@ public class StateWindow  extends JFrame {
     private ActionListener recipient;
     private boolean timerFlaag          = true;
     private int currentTime             = timerTime;
-    private javax.swing.Timer timerLabel= new javax.swing.Timer(1000, y->{
-        currentTime -= 1000;
-        if(currentTime == 0) {
-            nextStep.doClick();
-            currentTime = timerTime;
+    private javax.swing.Timer timerLabel= new javax.swing.Timer(100, y->{
+        currentTime -= 100;
+        if(currentTime <= 0) {
+            if(algorithm.isFinished()){
+                currentTime = timerTime;
+                startPauseTimer.doClick();
+            }
+            else {
+                nextStep.doClick();
+                currentTime = timerTime;
+            }
         }
-        timeCounter.setText(Integer.toString(currentTime/1000));
+        timeCounter.setText(Integer.toString(currentTime/1000) + "." + Integer.toString(currentTime%1000/100));
         timeCounter.updateUI();
     });
 
@@ -90,7 +96,7 @@ public class StateWindow  extends JFrame {
         nextGraphPanel.add(labelCurrentState);
         labelCurrentState.setBounds(0,0,560,20);
         nextGraphPanel.setLayout(null);
-        mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
+        mxGraphComponent grComp = algorithm.getCurrentGraphState().updateGraphComponent();
 
         grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
         nextGraphPanel.add(grComp);
@@ -109,18 +115,22 @@ public class StateWindow  extends JFrame {
         prevGraphPanel.setBackground(c);
         nextGraphPanel.setBackground(c);
         log.setBackground(new Color(255, 250, 221)); //#FFFADD
+        log.setLineWrap(true);
+        log.setWrapStyleWord(true);
 
-        interruptAlgorithm.addActionListener(new eventHandler());
-        nextStep.addActionListener(new eventHandler());
-        prevStep.addActionListener(new eventHandler());
-        startPauseTimer.addActionListener(new eventHandler());
-        mainPanel.addComponentListener(new eventHandler());
+        eventHandler eH = new eventHandler();
+        interruptAlgorithm.addActionListener(eH);
+        nextStep.addActionListener(eH);
+        prevStep.addActionListener(eH);
+        startPauseTimer.addActionListener(eH);
+        mainPanel.addComponentListener(eH);
 
         log.setEditable(false);
         timerLabel.start();
         startPauseTimer.setText("Pause");
-        timeCounter.addMouseListener(new eventHandler());
+        timeCounter.addMouseListener(eH);
         log.setText(algorithm.getComment());
+
     }
 
     class eventHandler implements ActionListener, ComponentListener, MouseListener {
@@ -135,7 +145,7 @@ public class StateWindow  extends JFrame {
                 if(!algorithm.isFinished()){
                     prevGraphPanel.removeAll();
                     prevGraphPanel.add(labelBeforeState);
-                    mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
+                    mxGraphComponent grComp = algorithm.getCurrentGraphState().updateGraphComponent();
                     grComp.setBounds(0, 30, prevGraphPanel.getWidth(), prevGraphPanel.getHeight() - 30);
                     prevGraphPanel.add(grComp);
                     prevGraphPanel.updateUI();
@@ -143,19 +153,19 @@ public class StateWindow  extends JFrame {
                     log.setText(log.getText() + algorithm.getComment());
                     nextGraphPanel.removeAll();
                     nextGraphPanel.add(labelCurrentState);
-                    grComp = algorithm.getCurrent().updateGraphComponent();
+                    grComp = algorithm.getCurrentGraphState().updateGraphComponent();
                     grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
                     nextGraphPanel.add(grComp);
                     nextGraphPanel.updateUI();
                     currentTime = timerTime;
-                    timeCounter.setText(Integer.toString(currentTime/1000));
+                    timeCounter.setText(Integer.toString(currentTime/1000) + "." + Integer.toString(currentTime%1000/100));
                     timeCounter.updateUI();
                 }
                 else{
                     parent.setVisible(true);
                     timerLabel.stop();
                     int id = (int)System.currentTimeMillis();
-                    ActionEvent message = new ActionEvent(algorithm.getCurrent(), id, "Finished");
+                    ActionEvent message = new ActionEvent(algorithm.getCurrentGraphState(), id, "Finished");
                     recipient.actionPerformed(message);
                     dispose();
                 }
@@ -166,7 +176,7 @@ public class StateWindow  extends JFrame {
                 timerFlaag = false;
                 startPauseTimer.setText("Start");
                 currentTime = timerTime;
-                timeCounter.setText(Integer.toString(currentTime/1000));
+                timeCounter.setText(Integer.toString(currentTime/1000) + "." + Integer.toString(currentTime%1000/100));
                 timeCounter.updateUI();
                 if (algorithm.canBeUndone()) {
                     log.setText(log.getText().replaceAll(algorithm.getComment(), ""));
@@ -174,7 +184,7 @@ public class StateWindow  extends JFrame {
 
                     nextGraphPanel.removeAll();
                     nextGraphPanel.add(labelCurrentState);
-                    mxGraphComponent grComp = algorithm.getCurrent().updateGraphComponent();
+                    mxGraphComponent grComp = algorithm.getCurrentGraphState().updateGraphComponent();
                     grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
                     nextGraphPanel.add(grComp);
                     nextGraphPanel.updateUI();
@@ -225,14 +235,31 @@ public class StateWindow  extends JFrame {
 
                 for (int i = 0; i < prevGraphPanel.getComponentCount(); i++)
                 {
-                    if (prevGraphPanel.getComponent(i) instanceof mxGraphComponent)
+                    if (prevGraphPanel.getComponent(i) instanceof mxGraphComponent) {
                         prevGraphPanel.getComponent(i).setBounds(0, 30, width, height - 30);
+                    }
+
                 }
-                for (int i = 0; i < nextGraphPanel.getComponentCount(); i++)
-                {
-                    if (nextGraphPanel.getComponent(i) instanceof mxGraphComponent)
+                for (int i = 0; i < nextGraphPanel.getComponentCount(); i++) {
+                    if (nextGraphPanel.getComponent(i) instanceof mxGraphComponent) {
                         nextGraphPanel.getComponent(i).setBounds(0, 30, width, height - 30);
+                    }
                 }
+                mxGraphComponent grComp = algorithm.getPrevState();
+                if(algorithm.canBeUndone()) {
+                    prevGraphPanel.removeAll();
+                    prevGraphPanel.add(labelBeforeState);
+                    grComp.setBounds(0, 30, prevGraphPanel.getWidth(), prevGraphPanel.getHeight() - 30);
+                    prevGraphPanel.add(grComp);
+                    prevGraphPanel.updateUI();
+                }
+                grComp = algorithm.getCurrentGraphState().updateGraphComponent();
+                nextGraphPanel.removeAll();
+                nextGraphPanel.add(labelCurrentState);
+                grComp = algorithm.getCurrentGraphState().updateGraphComponent();
+                grComp.setBounds(0, 30, nextGraphPanel.getWidth(), nextGraphPanel.getHeight() - 30);
+                nextGraphPanel.add(grComp);
+                nextGraphPanel.updateUI();
             }
         }
 
@@ -253,10 +280,33 @@ public class StateWindow  extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
+            boolean continueOnClose = timerFlaag;
             timerLabel.stop();
+            timerFlaag = false;
             try {
-                int tmpTime = Integer.parseInt(JOptionPane.showInputDialog(StateWindow.this,
-                        "Input new timer time: ", String.valueOf(currentTime/1000)));
+                String inp = JOptionPane.showInputDialog(StateWindow.this,
+                        "Input new timer time: ", String.valueOf(currentTime/1000));
+                if (inp == null) {
+                    timerTime = 10000;
+                    if(continueOnClose) {
+                        timerFlaag = true;
+                        timerLabel.start();
+                    }
+                    return;
+                }
+                if (!inp.matches("^[0-9]+$"))
+                {
+                    JLabel msg = new JLabel("Input a number");
+                    msg.setFont( new Font("Monospaced", Font.PLAIN, 18));
+                    JOptionPane.showMessageDialog(StateWindow.this, msg,
+                            "Invalid input", JOptionPane.WARNING_MESSAGE);
+                    if(continueOnClose) {
+                        timerFlaag = true;
+                        timerLabel.start();
+                    }
+                    return;
+                }
+                int tmpTime = Integer.parseInt(inp);
                 if (tmpTime > 0) {
                     if(tmpTime < currentTime)
                         currentTime = tmpTime * 1000;
@@ -266,8 +316,12 @@ public class StateWindow  extends JFrame {
             }catch (Exception e1){
                 timerTime = 10000;
             }
-
-            timerLabel.start();
+            timeCounter.setText(Integer.toString(currentTime/1000) + "." + Integer.toString(currentTime%1000/100));
+            timeCounter.updateUI();
+            if(continueOnClose) {
+                timerFlaag = true;
+                timerLabel.start();
+            }
         }
 
         @Override

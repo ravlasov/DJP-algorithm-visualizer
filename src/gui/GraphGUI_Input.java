@@ -85,8 +85,6 @@ public class GraphGUI_Input extends JFrame {
         ButtonGroup group = new ButtonGroup();
         group.add(modeVertex);
         group.add(modeEdge);
-        modeVertex.addChangeListener(new eventHandler());
-        modeEdge.addChangeListener(new eventHandler());
         modeVertex.setSelected(true);
 
         Color c = new Color(255, 250, 221); //#FFFADD
@@ -94,9 +92,12 @@ public class GraphGUI_Input extends JFrame {
         modeVertex.setBackground(mainColor);
         modeEdge.setBackground(mainColor);
 
-        cancelInputGraph.addActionListener(new eventHandler());
-        applyInputGraph.addActionListener(new eventHandler());
-        mainPanel.addComponentListener(new eventHandler());
+        eventHandler eH = new eventHandler();
+        modeVertex.addChangeListener(eH);
+        modeEdge.addChangeListener(eH);
+        cancelInputGraph.addActionListener(eH);
+        applyInputGraph.addActionListener(eH);
+        mainPanel.addComponentListener(eH);
 
 
         if (graph != null)
@@ -127,133 +128,11 @@ public class GraphGUI_Input extends JFrame {
         comp.setConnectable(false);
         comp.setBounds(0, 0,  inputGraphPanel.getWidth(), inputGraphPanel.getHeight());
         comp.setDragEnabled(false);
-        comp.getGraphControl().addMouseListener(new MouseListener() {
-            @Override
-            public void mousePressed(MouseEvent mouseEvent) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent mouseEvent) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent mouseEvent) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent mouseEvent) {
-
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                double x = mouseEvent.getPoint().getX();
-                double y = mouseEvent.getPoint().getY();
-                ArrayList<Object> vertexList = new ArrayList<Object>
-                                    (Arrays.asList(comp.getGraph().getChildVertices(comp.getGraph().getDefaultParent())));
-                Object o = comp.getCellAt((int)x, (int)y);
-
-                if (o != null && o instanceof mxCell && vertexList.contains(o)){
-                    if (selected == null)
-                    {
-                        if (modeVertex.isSelected()) {
-                            graph.removeVertex(((mxCell)o).getValue().toString());
-                            comp.getGraph().getModel().remove(o);
-                        }
-                        else{
-                            selected = o;
-                        }
-                        return;
-                    }
-                    else if (selected == o)
-                    {
-                        selected = null;
-                        return;
-
-                    }
-                    else
-                    {
-                        try {
-                            if (modeEdge.isSelected()) {
-                                // if Edge exists - remove it and return
-                                for (int i = 0; i < comp.getGraph().getModel().getEdgeCount(comp.getGraph().getSelectionCell()); i++) {
-                                    if (selected == ((mxCell) comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i)).getSource()
-                                            || selected == ((mxCell) comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i)).getTarget()) {
-                                        if (o == ((mxCell) comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i)).getSource()
-                                                || o == ((mxCell) comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i)).getTarget()) {
-                                            comp.getGraph().getModel().remove(comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i));
-                                            graph.removeEdge(((mxCell)selected).getValue().toString(),
-                                                    ((mxCell)o).getValue().toString());
-                                            return;
-                                        }
-                                    }
-                                }
-                                // else add new Edge
-                                comp.getGraph().getModel().beginUpdate();
-                                try {
-                                    Color c = Color.GRAY;
-                                    String inp = JOptionPane.showInputDialog(GraphGUI_Input.this, "Input edge cost:", "10");
-                                    if (!inp.matches("^[0-9]+$"))
-                                    {
-                                        JLabel msg = new JLabel("Input a number");
-                                        msg.setFont( new Font("Monospaced", Font.PLAIN, 18));
-                                        JOptionPane.showMessageDialog(GraphGUI_Input.this, msg,
-                                                "Invalid input", JOptionPane.WARNING_MESSAGE);
-                                        return;
-                                    }
-                                    int cost = Integer.parseInt(inp);
-                                    String style = "align=center;strokeWidth=2;startArrow=none;endArrow=none;fontSize=16;" +
-                                            String.format("strokeColor=#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
-                                    comp.getGraph().insertEdge(comp.getGraph().getDefaultParent(), null,
-                                            inp, selected, o, style);
-                                    graph.addEdge(((mxCell)selected).getValue().toString(),
-                                            ((mxCell)o).getValue().toString(), cost);
-                                } finally {
-                                    comp.getGraph().getModel().endUpdate();
-                                }
-                                return;
-                            }
-                        }
-                        finally {
-                            selected = null;
-                        }
-                    }
-                }
-                else {
-                    if (modeVertex.isSelected()) {
-                        comp.getGraph().getModel().beginUpdate();
-                        try {
-                            int i = 0;
-                            boolean valid = false;
-                            while (!valid) {
-                                i++;
-                                for (Object p : vertexList) {
-                                    mxCell px = (mxCell) p;
-                                    valid |= px.getValue().toString().equals(String.valueOf(i));
-                                }
-                                valid = !valid;
-                            }
-
-
-                            Color c = Color.GRAY;
-                            String styleVertex = "shape=ellipse;fontSize=16;" +
-                                    String.format("fillColor=#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
-                            comp.getGraph().insertVertex(comp.getGraph().getDefaultParent(), null, String.valueOf(i),
-                                    x - 25, y - 25, 50, 50, styleVertex);
-                        } finally {
-                            comp.getGraph().getModel().endUpdate();
-                        }
-                    }
-                }
-            }
-        });
+        comp.getGraphControl().addMouseListener(eH);
 
     }
 
-    class eventHandler implements ActionListener, ChangeListener, ComponentListener {
+    class eventHandler implements ActionListener, ChangeListener, ComponentListener, MouseListener {
         @Override
         public void actionPerformed (ActionEvent actionEvent){
             if(actionEvent.getSource() == cancelInputGraph) {
@@ -313,8 +192,8 @@ public class GraphGUI_Input extends JFrame {
         private double getDistanceX ()
         {
             double leftMost = Double.MAX_VALUE;
-            Object[] vertexes = comp.getGraph().getChildVertices(comp.getGraph().getDefaultParent());
-            for (Object c : vertexes)
+            Object[] verticess = comp.getGraph().getChildVertices(comp.getGraph().getDefaultParent());
+            for (Object c : verticess)
             {
                 mxCell v = (mxCell)c;
                 if (v.getGeometry().getX() < leftMost)
@@ -325,8 +204,8 @@ public class GraphGUI_Input extends JFrame {
         private double getDistanceY ()
         {
             double leftMost = Double.MAX_VALUE;
-            Object[] vertexes = comp.getGraph().getChildVertices(comp.getGraph().getDefaultParent());
-            for (Object c : vertexes)
+            Object[] verticess = comp.getGraph().getChildVertices(comp.getGraph().getDefaultParent());
+            for (Object c : verticess)
             {
                 mxCell v = (mxCell)c;
                 if (v.getGeometry().getY() < leftMost)
@@ -372,8 +251,132 @@ public class GraphGUI_Input extends JFrame {
 
         @Override
         public void componentHidden(ComponentEvent componentEvent) {
+        }
+
+        @Override
+        public void mousePressed(MouseEvent mouseEvent) {
 
         }
+
+        @Override
+        public void mouseReleased(MouseEvent mouseEvent) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent mouseEvent) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent mouseEvent) {
+
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent mouseEvent) {
+            double x = mouseEvent.getPoint().getX();
+            double y = mouseEvent.getPoint().getY();
+            ArrayList<Object> vertexList = new ArrayList<Object>
+                    (Arrays.asList(comp.getGraph().getChildVertices(comp.getGraph().getDefaultParent())));
+            Object o = comp.getCellAt((int)x, (int)y);
+
+            if (o != null && o instanceof mxCell && vertexList.contains(o)){
+                if (selected == null)
+                {
+                    if (modeVertex.isSelected()) {
+                        graph.removeVertex(((mxCell)o).getValue().toString());
+                        comp.getGraph().getModel().remove(o);
+                    }
+                    else{
+                        selected = o;
+                    }
+                    return;
+                }
+                else if (selected == o)
+                {
+                    selected = null;
+                    return;
+
+                }
+                else
+                {
+                    try {
+                        if (modeEdge.isSelected()) {
+                            // if Edge exists - remove it and return
+                            for (int i = 0; i < comp.getGraph().getModel().getEdgeCount(comp.getGraph().getSelectionCell()); i++) {
+                                if (selected == ((mxCell) comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i)).getSource()
+                                        || selected == ((mxCell) comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i)).getTarget()) {
+                                    if (o == ((mxCell) comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i)).getSource()
+                                            || o == ((mxCell) comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i)).getTarget()) {
+                                        comp.getGraph().getModel().remove(comp.getGraph().getModel().getEdgeAt(comp.getGraph().getSelectionCell(), i));
+                                        graph.removeEdge(((mxCell)selected).getValue().toString(),
+                                                ((mxCell)o).getValue().toString());
+                                        return;
+                                    }
+                                }
+                            }
+                            // else add new Edge
+                            comp.getGraph().getModel().beginUpdate();
+                            try {
+                                Color c = Color.GRAY;
+                                String inp = JOptionPane.showInputDialog(GraphGUI_Input.this, "Input edge cost:", "10");
+                                if (inp == null)
+                                    return;
+                                if (!inp.matches("^[0-9]+$"))
+                                {
+                                    JLabel msg = new JLabel("Input a number");
+                                    msg.setFont( new Font("Monospaced", Font.PLAIN, 18));
+                                    JOptionPane.showMessageDialog(GraphGUI_Input.this, msg,
+                                            "Invalid input", JOptionPane.WARNING_MESSAGE);
+                                    return;
+                                }
+                                int cost = Integer.parseInt(inp);
+                                String style = "align=center;strokeWidth=2;startArrow=none;endArrow=none;fontSize=24;" +
+                                        String.format("strokeColor=#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+                                comp.getGraph().insertEdge(comp.getGraph().getDefaultParent(), null,
+                                        inp, selected, o, style);
+                                graph.addEdge(((mxCell)selected).getValue().toString(),
+                                        ((mxCell)o).getValue().toString(), cost);
+                            } finally {
+                                comp.getGraph().getModel().endUpdate();
+                            }
+                            return;
+                        }
+                    }
+                    finally {
+                        selected = null;
+                    }
+                }
+            }
+            else {
+                if (modeVertex.isSelected()) {
+                    comp.getGraph().getModel().beginUpdate();
+                    try {
+                        int i = 0;
+                        boolean valid = false;
+                        while (!valid) {
+                            i++;
+                            for (Object p : vertexList) {
+                                mxCell px = (mxCell) p;
+                                valid |= px.getValue().toString().equals(String.valueOf(i));
+                            }
+                            valid = !valid;
+                        }
+
+
+                        Color c = Color.GRAY;
+                        String styleVertex = "shape=ellipse;fontSize=24;" +
+                                String.format("fillColor=#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+                        comp.getGraph().insertVertex(comp.getGraph().getDefaultParent(), null, String.valueOf(i),
+                                x - 25, y - 25, 50, 50, styleVertex);
+                    } finally {
+                        comp.getGraph().getModel().endUpdate();
+                    }
+                }
+            }
+        }
+
     }
 
 }

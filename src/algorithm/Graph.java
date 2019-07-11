@@ -45,6 +45,21 @@ public class Graph {
         edgeList.add(new Edge(name1, name2, cost));
     }
 
+    public void resetToStart()
+    {
+        answerEdgesList = new ArrayList<>();
+    }
+
+    public int countFinalCost()
+    {
+        int cost = 0;
+        for (Edge e : answerEdgesList)
+        {
+            cost += e.getCost();
+        }
+        return cost;
+    }
+
     public void removeEdge(String name1, String name2)
     {
         for (Iterator<Edge> it = edgeList.iterator(); it.hasNext();)
@@ -80,6 +95,11 @@ public class Graph {
                 x[1].setColor(Color.GREEN);
         }
         answerEdgesList.add(e);
+    }
+
+    public void removeFromAnswer(Edge e)
+    {
+        answerEdgesList.remove(e);
     }
 
     public void paintVisited(ArrayList<Vertex> visited)
@@ -135,7 +155,7 @@ public class Graph {
         return list;
     }
 
-    public mxGraphComponent createGraphComponent() //Создает компоненту для отображения графа
+    public mxGraphComponent createGraphComponent() //Создает компоненту отображения графа
     {
         graph = new mxGraph();
         Object grParent = graph.getDefaultParent();
@@ -145,7 +165,7 @@ public class Graph {
             Object[] vertexObj = new Object[vertex.size()];
             for (int i = 0; i < vertex.size(); i++) {
                 Color c = vertex.get(i).getColor();
-                String styleVertex = "shape=ellipse;fontSize=16;" +
+                String styleVertex = "shape=ellipse;fontSize=24;" +
                         String.format("fillColor=#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
                 vertexObj[i] = graph.insertVertex(grParent, null, vertex.get(i).getName(), 50, 100, 50, 50,
                         styleVertex);
@@ -154,7 +174,7 @@ public class Graph {
             for (Edge e : edgeList) {
                 Color c = e.getColor();
                 String costStr = String.valueOf(e.getCost());
-                String styleEdge = "align=center;strokeWidth=2;startArrow=none;endArrow=none;fontSize=16;" +
+                String styleEdge = "align=center;strokeWidth=2;startArrow=none;endArrow=none;fontSize=24;" +
                         String.format("strokeColor=#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
 
                 Vertex[] adjV = e.getAdjasent();
@@ -186,10 +206,10 @@ public class Graph {
         return graphComponent;
     }
 
-    public mxGraphComponent updateGraphComponent()
+    public mxGraphComponent updateGraphComponent() //Обновляет компоненту отображения графа
     {
-        Object[] vertexes = graph.getChildVertices(graph.getDefaultParent());
-        Object[] newVertexes = new Object[vertexes.length];
+        Object[] vertices = graph.getChildVertices(graph.getDefaultParent());
+        Object[] newVertices = new Object[vertices.length];
         int i = 0;
         mxGraph tmp = new mxGraph();
         Object grParent = tmp.getDefaultParent();
@@ -198,31 +218,31 @@ public class Graph {
 
         tmp.getModel().beginUpdate();
         try{
-            for (Object x : vertexes)
+            for (Object x : vertices)
             {
                 mxCell v = (mxCell)x;
                 int ind = vertex.indexOf(new Vertex(v.getValue().toString()));
                 if (ind < 0)
                     continue;
                 Color c = vertex.get(ind).getColor();
-                String styleVertex = "shape=ellipse;fontSize=16;" +
+                String styleVertex = "shape=ellipse;fontSize=24;" +
                         String.format("fillColor=#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
                 mxGeometry g = v.getGeometry();
-                newVertexes[i] = tmp.insertVertex(grParent, null, v.getValue(), g.getX(), g.getY(), g.getWidth(), g.getHeight(), styleVertex);
+                newVertices[i] = tmp.insertVertex(grParent, null, v.getValue(), g.getX(), g.getY(), g.getWidth(), g.getHeight(), styleVertex);
                 i++;
             }
 
             for (Edge e : edgeList) {
                 Color c = e.getColor();
                 String costStr = String.valueOf(e.getCost());
-                String styleEdge = "align=center;strokeWidth=2;startArrow=none;endArrow=none;fontSize=16;" +
+                String styleEdge = "align=center;strokeWidth=2;startArrow=none;endArrow=none;fontSize=24;" +
                         String.format("strokeColor=#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
 
                 Vertex[] adjV = e.getAdjasent();
                 Object v1 = null;
                 Object v2 = null;
 
-                for (Object o : newVertexes)
+                for (Object o : newVertices)
                 {
                     if (o == null)
                         continue;
@@ -258,22 +278,6 @@ public class Graph {
         graphComponent.setEnabled(false);
         graphComponent.setConnectable(false);
         return graphComponent;
-    }
-
-
-    public void print()
-    {
-        for (Edge e : edgeList)
-        {
-            Vertex[] v = e.getAdjasent();
-        }
-    }
-    public void printA()
-    {
-        for (Edge e : answerEdgesList)
-        {
-            Vertex[] v = e.getAdjasent();
-        }
     }
 
     public static Graph getGraphFromString(String str)
@@ -314,21 +318,11 @@ public class Graph {
         tmp.addAll(edgeList);
         return new Graph(tmp, graph);
     }
-    public void restoreGraph(Graph copy)
-    {
-        this.graph = copy.graph;
-        this.edgeList = copy.edgeList;
-    }
-    public void restoreMXGraph(Graph copy)
-    {
-        this.graph = copy.graph;
-    }
-    public mxGraph getMXGraph(){
-        return graph;
-    }
+
     public void setMXGraph(mxGraph graph){
         this.graph = graph;
     }
+
     public void resetColors()
     {
         for (Edge e : edgeList)
@@ -364,8 +358,8 @@ public class Graph {
         }
         return true;
     }
-
 }
+
 class processHelper {
     public static void goInside(String[][] arr, boolean[] checked, int tmp){
         for(int i = 0; i < checked.length; i++){
